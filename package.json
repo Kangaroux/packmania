@@ -1,0 +1,20 @@
+{
+  "name": "asset-boilerplate",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^5.0.0",
+    "gulp-sass": "^4.0.1",
+    "webpack": "^4.16.1",
+    "webpack-cli": "^3.1.0"
+  },
+  "scripts": {
+    "dev": "rm -rf dist/*\n gulp watch &\n webpack --watch --progress --colors --devtool eval-cheap-module-source-map --mode development\n wait",
+    "prod": "rm -rf dist/*\n gulp &\n webpack --progress --colors -p\n wait"
+  }
+}
