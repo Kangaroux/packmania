@@ -16,6 +16,6 @@ class TestGetUsers(TestCase):
     ]
 
     c = Client()
-    resp = sorted(c.get(reverse("api:users")).json(), key=lambda x: x["id"])
+    resp = sorted(c.get(reverse("api:users")).json()["results"], key=lambda x: x["id"])
 
     self.assertEqual(resp, UserSerializer(users, many=True).data)

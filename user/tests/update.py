@@ -22,10 +22,10 @@ class TestUpdateUsers(TestCase):
     }, content_type="application/json")
 
     self.assertEqual(resp.status_code, 200)
-    self.assertNotEqual(resp.json(), UserSerializer(self.u).data)
+    self.assertNotEqual(resp.json()["user"], UserSerializer(self.u).data)
 
     # Pull down the new user model
     self.u.refresh_from_db()
 
-    self.assertEqual(resp.json(), UserSerializer(self.u).data)
+    self.assertEqual(resp.json()["user"], UserSerializer(self.u).data)
     self.assertTrue(self.u.check_password("mynewpass"))
