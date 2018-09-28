@@ -2,7 +2,7 @@ from django.shortcuts import reverse
 from django.test import Client, TestCase
 
 from ..models import User
-from ..serializers import DetailUserSerializer
+from ..serializers import UserSerializer
 
 
 class TestGetUsers(TestCase):
@@ -19,4 +19,4 @@ class TestGetUsers(TestCase):
     c = Client()
     resp = sorted(c.get(reverse("api:users")).json(), key=lambda x: x["id"])
 
-    self.assertEqual(resp, DetailUserSerializer(users, many=True).data)
+    self.assertEqual(resp, UserSerializer(users, many=True).data)

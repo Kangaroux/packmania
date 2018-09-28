@@ -2,7 +2,7 @@ from django.shortcuts import reverse
 from django.test import Client, TestCase
 
 from ..models import User
-from ..serializers import DetailUserSerializer
+from ..serializers import UserSerializer
 
 
 class TestCreateUser(TestCase):
@@ -14,11 +14,13 @@ class TestCreateUser(TestCase):
     resp = c.post(reverse("api:users"), {
       "username": "test_user",
       "email": "test@test.com",
-      "password": "P4ssw0rd"
+      "password": "password123",
+      "confirm_password": "password123"
     })
 
+    self.assertTrue(resp.status_code, 200)
     user = User.objects.get(pk=resp.json()["id"])
-    self.assertEqual(DetailUserSerializer(user).data, resp.json())
+    self.assertEqual(UserSerializer(user).data, resp.json())
 
   def test_missing_params(self):
     c = Client()
@@ -28,7 +30,8 @@ class TestCreateUser(TestCase):
     self.assertEqual(resp.json(), {
       "email": [ "This field is required." ],
       "username": [ "This field is required." ],
-      "password": [ "This field is required." ]
+      "password": [ "This field is required." ],
+      "confirm_password": [ "This field is required." ],
     })
 
   def test_bad_email(self):
