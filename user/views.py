@@ -8,7 +8,7 @@ from .serializers import CreateUserSerializer, DetailUserSerializer
 
 class UserList(APIView):
   def get(self, request, format=None):
-    return Response(DetailUserSerializer(User.objects.all(), many=True))
+    return Response(DetailUserSerializer(User.objects.all(), many=True).data)
 
   def post(self, request, format=None):
     serializer = CreateUserSerializer(data=request.data)
@@ -23,5 +23,8 @@ class UserList(APIView):
     return JsonResponse(DetailUserSerializer(u).data)
 
 class UserDetail(APIView):
-  def get(self, request, format=None):
-    pass
+  def get(self, request, pk, format=None):
+    try:
+      return JsonResponse(DetailUserSerializer(User.objects.get(pk=pk)).data)
+    except User.DoesNotExist:
+      return JsonResponse({ "error": "User does not exist." })
