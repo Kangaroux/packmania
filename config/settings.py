@@ -34,6 +34,11 @@ MIDDLEWARE = [
   "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+PASSWORD_HASHERS = [
+  "django.contrib.auth.hashers.Argon2PasswordHasher",
+  "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+]
+
 TEMPLATES = [
   {
     "BACKEND": "django.template.backends.django.DjangoTemplates",
