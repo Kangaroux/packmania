@@ -1,11 +1,11 @@
 from django.shortcuts import reverse
 from django.test import Client, TestCase
 
-from .models import User
-from .serializers import DetailUserSerializer
+from ..models import User
+from ..serializers import DetailUserSerializer
 
 
-class TestUserListAPI(TestCase):
+class TestCreateUser(TestCase):
   def setUp(self):
     User.objects.all().delete()
 
