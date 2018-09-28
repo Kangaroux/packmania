@@ -24,9 +24,9 @@ The osu! beatmap browser is a good starting point, which would mean the followin
 - User feedback (comments, thumb-up songs)
 
 In addition, there are a few other features which would be helpful:
-- Ability to tag songs (see: [Tagging](#Tagging))
+- Ability to tag songs (see: [Tagging](#tagging))
 - "Follow" an uploader to be notified when they upload a new song/pack
-- Create playlists (see: [Playlists](#Playlists))
+- Create playlists (see: [Playlists](#playlists))
 
 If Stepmania ever develops a leaderboard/ranking system this would double as a place to find those rankings.
 
