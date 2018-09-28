@@ -1,12 +1,11 @@
 from django.shortcuts import reverse
 from django.test import Client, TestCase
-from django.test.client import MULTIPART_CONTENT
 
 from ..models import User
 from ..serializers import UserSerializer
 
 
-class TestGetUsers(TestCase):
+class TestUpdateUsers(TestCase):
   def setUp(self):
     User.objects.all().delete()
     self.u = User(username="test_user", email="test@test.com")

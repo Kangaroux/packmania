@@ -6,9 +6,6 @@ from ..serializers import UserSerializer
 
 
 class TestCreateUser(TestCase):
-  def setUp(self):
-    User.objects.all().delete()
-
   def test_create_ok(self):
     c = Client()
     resp = c.post(reverse("api:users"), {

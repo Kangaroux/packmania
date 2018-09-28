@@ -50,3 +50,14 @@ class UserDetail(APIView):
       update_session_auth_hash(request, u)
 
     return JsonResponse(UserSerializer(u).data)
+
+  def delete(self, request, pk, format=None):
+    try:
+      u = User.objects.get(pk=pk)
+    except User.DoesNotExist:
+      return JsonResponse({ "error": "User does not exist." }, status=404)
+
+    u.is_active = False
+    u.save()
+
+    return JsonResponse({})

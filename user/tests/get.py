@@ -6,10 +6,9 @@ from ..serializers import UserSerializer
 
 
 class TestGetUsers(TestCase):
-  def setUp(self):
+  def test_get_all(self):
     User.objects.all().delete()
 
-  def test_get_all(self):
     users = [
       User.objects.create(username="test-user-1", email="test1@test.com"),
       User.objects.create(username="test-user-2", email="test2@test.com"),
