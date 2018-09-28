@@ -4,6 +4,9 @@ import os
 DEBUG = True
 SECRET_KEY = "hh$iej22(6g=@&#d=r$zi+ypfjdzl4hf8fd+cqm%#7^n!id&*%"
 ALLOWED_HOSTS = []
+APPEND_SLASH = False
+
+AUTH_USER_MODEL = "user.User"
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ROOT_URLCONF = "config.urls"
@@ -16,6 +19,9 @@ INSTALLED_APPS = [
   "django.contrib.sessions",
   "django.contrib.messages",
   "django.contrib.staticfiles",
+  "rest_framework",
+
+  "user",
 ]
 
 MIDDLEWARE = [
