@@ -23,18 +23,17 @@ class StepInfo:
     self.fakes = 0
     self.jumps = 0
     self.hands = 0
-    self.quads = 0
 
 
 class ChartInfo:
   """ Information for each difficulty """
 
   class Type(Enum):
-    SINGLE = "dance-single"
-    DOUBLE = "dance-double"
-    # SOLO = "dance-solo"
-    # THREEPANEL = "dance-threepanel"
-    # ROUTINE = "dance-routine"
+    DANCE_SINGLE = "dance-single"
+    DANCE_DOUBLE = "dance-double"
+    # DANCE_SOLO = "dance-solo"
+    # DANCE_THREEPANEL = "dance-threepanel"
+    # DANCE_ROUTINE = "dance-routine"
 
   class Difficulty(Enum):
     NOVICE = "Beginner"
@@ -98,9 +97,12 @@ class SongInfo:
     self.file_name = ""
     self.preview_start = 0
     self.preview_length = 0
-    self.random_bpm = False
-    self.bpm_range = (60, 60)
     self.has_stops = False
+    self.random_bpm = False
+
+    # When set, this is a 2-tuple of the min and max values for the BPM. If the BPM
+    # does not change the min and max will be equal
+    self.bpm_range = None
 
 
 class SMParser:
@@ -200,6 +202,22 @@ class SMParser:
       self.display.author = value
     elif name == "MUSIC":
       self.song.file_name = value
+    elif name == "BPMS":
+      # DISPLAYBPM takes priority over this, so only set the range if we haven't already
+      if self.song.bpm_range is None:
+        min_bpm = None
+        max_bpm = None
+
+        for bpm_change in value.split(","):
+          bpm = float(bpm_change.split("=")[1])
+
+          if min_bpm is None or bpm < min_bpm:
+            min_bpm = bpm
+
+          if max_bpm is None or bpm > max_bpm:
+            max_bpm = bpm
+
+        self.song.bpm_range = (min_bpm, max_bpm)
     elif name == "DISPLAYBPM":
       if value == "*":
         self.song.random_bpm = True
@@ -239,7 +257,7 @@ class SMParser:
     chart.meter = int(note_data[3])
 
     # TODO: Handle parsing charts for doubles
-    if chart.chart_type == ChartInfo.Type.SINGLE:
+    if chart.chart_type == ChartInfo.Type.DANCE_SINGLE:
       self.parse_notes(chart, note_data[5])
 
     self.charts.append(chart)
@@ -260,30 +278,37 @@ class SMParser:
         consecutive_taps = 0
 
         # Parse each step
-        for b in row:
-          if b == StepInfo.Type.MINE:
+        for note in row:
+          try:
+            note_type = StepInfo.Type(note)
+          except ValueError:
+            continue
+
+          if note_type == StepInfo.Type.EMPTY:
+            continue
+
+          if note_type == StepInfo.Type.MINE:
             chart.steps.mines += 1
-          elif b == StepInfo.Type.LIFT:
+          elif note_type == StepInfo.Type.LIFT:
             chart.steps.lifts += 1
-          elif b == StepInfo.Type.FAKE:
+          elif note_type == StepInfo.Type.FAKE:
             chart.steps.fakes += 1
-          elif b == StepInfo.Type.TAP:
+          elif note_type == StepInfo.Type.TAP:
             consecutive_taps += 1
-          elif b == StepInfo.Type.HOLD:
+          elif note_type == StepInfo.Type.HOLD:
             consecutive_taps += 1
             chart.steps.holds += 1
-          elif b == StepInfo.Type.ROLL:
+          elif note_type == StepInfo.Type.ROLL:
             consecutive_taps += 1
             chart.steps.rolls += 1
 
         # Handle how many directions have to be pressed at once
-        if consecutive_taps == 1:
-          chart.steps.taps += 1
-        elif consecutive_taps == 2:
+        if consecutive_taps == 2:
           chart.steps.jumps += 1
-        elif consecutive_taps == 3:
+        elif consecutive_taps >= 3:
+          chart.steps.jumps += 1
           chart.steps.hands += 1
-        elif consecutive_taps == 4:
-          chart.steps.quads += 1
+
+        chart.steps.taps += min(1, consecutive_taps)
 
         row = ""
