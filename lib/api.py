@@ -1,4 +1,3 @@
-import django.contrib.auth.mixins
 import logging
 from django.http import JsonResponse
 
@@ -21,9 +20,18 @@ class MissingError(APIError):
   pass
 
 
-class LoginRequiredMixin(django.contrib.auth.mixins.LoginRequiredMixin):
-  def handle_no_permission(self):
-    return APIView.not_logged_in()
+class LoginRequiredMixin:
+  """ View mixin which returns a 401 if the user is not logged in. By default the
+  mixin only protects the POST, PATCH, and DELETE methods
+  """
+
+  PROTECTED_METHODS = ["POST", "PATCH", "DELETE"]
+
+  def dispatch(self, request, *args, **kwargs):
+    if not request.user.is_authenticated and request.method.upper() in self.PROTECTED_METHODS:
+      return APIView.not_logged_in()
+    else:
+      return super().dispatch(request, *args, **kwargs)
 
 
 class APIView(RestFrameworkAPIView):

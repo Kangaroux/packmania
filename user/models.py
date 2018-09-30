@@ -3,15 +3,14 @@ from django.db import models
 
 
 class User(AbstractUser):
-  username = models.SlugField(max_length=20, unique=True,
+  username = models.SlugField("username", max_length=20, unique=True,
     error_messages={
-      "invalid": "Can only contain letters, numbers, hyphens, and underscores.",
-      "unique": "A user with that username already exists.",
+      "unique": "A user with that username already exists."
     })
 
-  email = models.EmailField(unique=True,
+  email = models.EmailField("email", unique=True,
     error_messages={
-      "unique": "A user with that email already exists.",
+      "unique": "A user with that email already exists."
     })
 
   # Users are required to login using their email

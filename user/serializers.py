@@ -8,6 +8,10 @@ from lib.errors import error_messages
 from .models import User
 
 
+# Fields on the user model which are only visible to the user who owns them and admins
+PRIVATE_FIELDS = ("email",)
+
+
 class UserSerializer(serializers.ModelSerializer):
 
   # We won't require users to give their current password in order to change it
@@ -43,6 +47,10 @@ class UserSerializer(serializers.ModelSerializer):
         "write_only": True
       }
     }
+
+  def __init__(self, *args, **kwargs):
+    self.show_private_fields = kwargs.pop("show_private_fields", False)
+    super().__init__(*args, **kwargs)
 
   def validate_username(self, val):
     if not re.search(r"[a-zA-Z\d]", val):
@@ -82,3 +90,13 @@ class UserSerializer(serializers.ModelSerializer):
     instance.save()
 
     return instance
+
+  @property
+  def data(self):
+    data = super().data
+
+    if not self.show_private_fields:
+      for field in PRIVATE_FIELDS:
+        data.pop(field, None)
+
+    return data

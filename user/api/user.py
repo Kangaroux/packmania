@@ -1,8 +1,8 @@
 from django.contrib.auth import update_session_auth_hash
 
 from ..models import User
-from ..serializers import UserSerializer
-from lib.api import APIView
+from ..serializers import PRIVATE_FIELDS, UserSerializer
+from lib.api import APIView, LoginRequiredMixin
 
 
 class UserList(APIView):
@@ -24,18 +24,30 @@ class UserList(APIView):
     return self.ok({ "user": UserSerializer(u).data }, status=201)
 
 
-class UserDetail(APIView):
+class UserDetail(LoginRequiredMixin, APIView):
   """ User API for getting, updating, and deleting an existing user """
 
   def get(self, request, pk, format=None):
     """ Get a single user """
     try:
-      return self.ok({ "user": UserSerializer(User.objects.get(pk=pk)).data })
+      data = { "user": UserSerializer(User.objects.get(pk=pk), show_private_fields=request.user.id == pk).data }
     except User.DoesNotExist:
       return self.error("User does not exist.", status=404)
 
+    # Hide private fields from users who should not see them
+    if request.user.id != pk:
+      for field in PRIVATE_FIELDS:
+        data.pop(field, None)
+
+    return self.ok(data)
+
   def patch(self, request, pk, format=None):
     """ Update a user """
+
+    # Verify the user has permission to do this
+    if request.user.id != pk:
+      return self.lacks_permission()
+
     try:
       u = User.objects.get(pk=pk)
     except User.DoesNotExist:
@@ -56,6 +68,11 @@ class UserDetail(APIView):
 
   def delete(self, request, pk, format=None):
     """ Delete a user """
+
+    # Verify the user has permission to do this
+    if request.user.id != pk:
+      return self.lacks_permission()
+
     try:
       u = User.objects.get(pk=pk)
     except User.DoesNotExist:

@@ -17,8 +17,15 @@ class TestSerializer(TestCase):
       email="test@test.com"
     )
 
-    # For UTC, Python formats dates with a "+00:00" suffix, whereas DRF uses "Z"
-    self.assertEqual(UserSerializer(u).data, {
+    # Hide private fields
+    self.assertEqual(UserSerializer(u, show_private_fields=False).data, {
+      "id": u.id,
+      "username": "test_user",
+      "date_joined": re.sub(r"\+.*", "Z", u.date_joined.isoformat())
+    })
+
+    # Show private fields
+    self.assertEqual(UserSerializer(u, show_private_fields=True).data, {
       "id": u.id,
       "username": "test_user",
       "email": "test@test.com",
