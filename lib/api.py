@@ -1,7 +1,11 @@
 import django.contrib.auth.mixins
+import logging
 from django.http import JsonResponse
 
 from rest_framework.views import APIView as RestFrameworkAPIView
+
+
+logger = logging.getLogger(__name__)
 
 
 class APIError(Exception):
@@ -33,10 +37,19 @@ class APIView(RestFrameworkAPIView):
     except APIError as e:
       return e.as_json()
     except Exception as e:
+      logger.exception("Unexpected exception occurred in API view")
       return self.error("An unexpected error occurred.", status=500)
 
   @classmethod
+  def form_error(cls, form, msg=None):
+    return cls.field_errors(form.errors, msg)
+
+  @classmethod
   def serializer_error(cls, errors, msg=None):
+    return cls.field_errors(errors, msg)
+
+  @classmethod
+  def field_errors(cls, errors, msg=None):
     # Any generic form-wide error(s) are included under the __all__ key
     form_error_msg = errors.pop("__all__", None)
 

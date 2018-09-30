@@ -1,5 +1,4 @@
 from django.contrib.auth import update_session_auth_hash
-from rest_framework.response import Response
 
 from ..models import User
 from ..serializers import UserSerializer
@@ -7,6 +6,8 @@ from lib.api import APIView
 
 
 class UserList(APIView):
+  """ User API for getting collections of users or creating a new user """
+
   def get(self, request, format=None):
     """ Get multiple users """
     return self.ok(UserSerializer(User.objects.all(), many=True).data)
@@ -24,6 +25,8 @@ class UserList(APIView):
 
 
 class UserDetail(APIView):
+  """ User API for getting, updating, and deleting an existing user """
+
   def get(self, request, pk, format=None):
     """ Get a single user """
     try:

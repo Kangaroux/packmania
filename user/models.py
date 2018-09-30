@@ -13,3 +13,7 @@ class User(AbstractUser):
     error_messages={
       "unique": "A user with that email already exists.",
     })
+
+  # Users are required to login using their email
+  USERNAME_FIELD = "email"
+  REQUIRED_FIELDS = [ "username" ]
