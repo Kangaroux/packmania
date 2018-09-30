@@ -3,8 +3,8 @@ import re
 from django.shortcuts import reverse
 from django.test import Client, TestCase
 
-from ..models import User
-from ..serializers import UserSerializer
+from user.models import User
+from user.serializers import UserSerializer
 
 
 class TestSerializer(TestCase):

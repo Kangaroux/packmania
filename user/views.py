@@ -45,12 +45,13 @@ class UserDetail(APIView):
     serializer.update(u, serializer.validated_data)
 
     # Don't invalidate the user's session if they were the one who made this request
-    if request.user.id == u.id:
+    if request.user == u:
       update_session_auth_hash(request, u)
 
     return self.ok({ "user": UserSerializer(u).data })
 
   def delete(self, request, pk, format=None):
+    """ Delete a user """
     try:
       u = User.objects.get(pk=pk)
     except User.DoesNotExist:
