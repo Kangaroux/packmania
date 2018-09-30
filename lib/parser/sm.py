@@ -146,6 +146,7 @@ class SMParser:
     col = 0
     comment = False
 
+    # .sm files use the format: #<TAG_NAME>:[tag_value];
     for i in range(len(s)):
       c = s[i]
       col += 1
@@ -183,6 +184,7 @@ class SMParser:
           value = ""
 
   def handle_tag(self, name, value):
+    """ Parses a name/value pair """
     name = name.strip()
     value = value.strip()
 
@@ -287,6 +289,7 @@ class SMParser:
           if note_type == StepInfo.Type.EMPTY:
             continue
 
+          # Handle notes for each key
           if note_type == StepInfo.Type.MINE:
             chart.steps.mines += 1
           elif note_type == StepInfo.Type.LIFT:
@@ -309,6 +312,9 @@ class SMParser:
           chart.steps.jumps += 1
           chart.steps.hands += 1
 
+        # There seems to be an inconsistency with how the stepmania note editor and the song
+        # browser classifies taps. The editor counts every note as a tap whereas the browser
+        # considers jumps and hands to only be a single tap. This doesn't affect anything
+        # but it can make testing confusing if you are using the editor as a reference
         chart.steps.taps += min(1, consecutive_taps)
-
         row = ""

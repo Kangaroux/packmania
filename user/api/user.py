@@ -1,8 +1,8 @@
 from django.contrib.auth import update_session_auth_hash
 from rest_framework.response import Response
 
-from .models import User
-from .serializers import UserSerializer
+from ..models import User
+from ..serializers import UserSerializer
 from lib.api import APIView
 
 
@@ -21,6 +21,7 @@ class UserList(APIView):
     u = serializer.create(serializer.validated_data)
 
     return self.ok({ "user": UserSerializer(u).data }, status=201)
+
 
 class UserDetail(APIView):
   def get(self, request, pk, format=None):
