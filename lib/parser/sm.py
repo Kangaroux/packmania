@@ -36,11 +36,11 @@ class ChartInfo:
     # DANCE_ROUTINE = "dance-routine"
 
   class Difficulty(Enum):
-    NOVICE = "Beginner"
+    NOVICE = "Novice"
     EASY = "Easy"
     MEDIUM = "Medium"
     HARD = "Hard"
-    EXPERT = "Challenger"
+    EXPERT = "Expert"
     EDIT = "Edit"
 
     @classmethod
@@ -71,7 +71,7 @@ class ChartInfo:
 
 
   def __init__(self):
-    self.chart_type = None
+    self.type = None
     self.meter = 1
     self.difficulty = None
     self.steps = StepInfo()
@@ -250,7 +250,7 @@ class SMParser:
       note_data[i] = note_data[i].strip()
 
     try:
-      chart.chart_type = ChartInfo.Type(note_data[0])
+      chart.type = ChartInfo.Type(note_data[0])
     except ValueError:
       print("Unsupported chart type '%s', skipping..." % note_data[0])
       return
@@ -259,7 +259,7 @@ class SMParser:
     chart.meter = int(note_data[3])
 
     # TODO: Handle parsing charts for doubles
-    if chart.chart_type == ChartInfo.Type.DANCE_SINGLE:
+    if chart.type == ChartInfo.Type.DANCE_SINGLE:
       self.parse_notes(chart, note_data[5])
 
     self.charts.append(chart)

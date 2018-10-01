@@ -43,7 +43,7 @@ class TestSMParser(TestCase):
     self.assertEqual(len(charts), 4)
 
     # Easy single
-    self.assertEqual(charts[0].chart_type, ChartInfo.Type.DANCE_SINGLE)
+    self.assertEqual(charts[0].type, ChartInfo.Type.DANCE_SINGLE)
     self.assertEqual(charts[0].meter, 3)
     self.assertEqual(charts[0].difficulty, ChartInfo.Difficulty.EASY)
     self.assertEqual(charts[0].steps.taps, 157)
@@ -56,7 +56,7 @@ class TestSMParser(TestCase):
     self.assertEqual(charts[0].steps.fakes, 0)
 
     # Medium single
-    self.assertEqual(charts[1].chart_type, ChartInfo.Type.DANCE_SINGLE)
+    self.assertEqual(charts[1].type, ChartInfo.Type.DANCE_SINGLE)
     self.assertEqual(charts[1].meter, 5)
     self.assertEqual(charts[1].difficulty, ChartInfo.Difficulty.MEDIUM)
     self.assertEqual(charts[1].steps.taps, 222)
@@ -65,7 +65,7 @@ class TestSMParser(TestCase):
     self.assertEqual(charts[1].steps.rolls, 7)
 
     # Hard single
-    self.assertEqual(charts[2].chart_type, ChartInfo.Type.DANCE_SINGLE)
+    self.assertEqual(charts[2].type, ChartInfo.Type.DANCE_SINGLE)
     self.assertEqual(charts[2].meter, 9)
     self.assertEqual(charts[2].difficulty, ChartInfo.Difficulty.HARD)
     self.assertEqual(charts[2].steps.taps, 410)
@@ -74,7 +74,7 @@ class TestSMParser(TestCase):
     self.assertEqual(charts[2].steps.rolls, 8)
 
     # Expert single
-    self.assertEqual(charts[3].chart_type, ChartInfo.Type.DANCE_SINGLE)
+    self.assertEqual(charts[3].type, ChartInfo.Type.DANCE_SINGLE)
     self.assertEqual(charts[3].meter, 11)
     self.assertEqual(charts[3].difficulty, ChartInfo.Difficulty.EXPERT)
     self.assertEqual(charts[3].steps.taps, 551)

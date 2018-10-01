@@ -16,7 +16,7 @@ class LoginForm(forms.Form):
 
       try:
         self.user = User.objects.get(email__iexact=email)
-        valid = self.user.check_password(password)
+        valid = self.user.is_active and self.user.check_password(password)
       except User.DoesNotExist:
         pass
 
