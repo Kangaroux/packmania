@@ -5,11 +5,13 @@ from ..serializers import PRIVATE_FIELDS, UserSerializer
 from lib.api import APIView, LoginRequiredMixin
 
 
-class UserList(APIView):
+class UserListAPI(APIView):
   """ User API for getting collections of users or creating a new user """
 
   def get(self, request, format=None):
     """ Get multiple users """
+
+    # TODO: Filtering, pagination
     return self.ok(UserSerializer(User.objects.all(), many=True).data)
 
   def post(self, request, format=None):
@@ -24,7 +26,7 @@ class UserList(APIView):
     return self.ok({ "user": UserSerializer(u).data }, status=201)
 
 
-class UserDetail(LoginRequiredMixin, APIView):
+class UserDetailAPI(LoginRequiredMixin, APIView):
   """ User API for getting, updating, and deleting an existing user """
 
   def get(self, request, pk, format=None):

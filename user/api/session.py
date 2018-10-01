@@ -17,7 +17,7 @@ class SessionAPI(APIView):
 
   def post(self, request, format=None):
     """ Logs the user in and returns their user id """
-    form = LoginForm(request.POST)
+    form = LoginForm(request.data)
 
     if not form.is_valid():
       return self.form_error(form)

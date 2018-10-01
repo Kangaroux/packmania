@@ -45,20 +45,20 @@ BPM_CHOICES = (
 class Chart(models.Model):
   # Metadata for the chart
   type = models.CharField(max_length=50, choices=CHART_CHOICES)
-  meter = models.IntegerField()
+  meter = models.IntegerField(default=1)
   difficulty = models.CharField(max_length=50, choices=DIFFICULTY_CHOICES)
 
   # Note counts
-  taps = models.IntegerField()
-  jumps = models.IntegerField()
-  hands = models.IntegerField()
-  holds = models.IntegerField()
-  rolls = models.IntegerField()
-  mines = models.IntegerField()
-  lifts = models.IntegerField()
-  fakes = models.IntegerField()
+  taps = models.IntegerField(default=0)
+  jumps = models.IntegerField(default=0)
+  hands = models.IntegerField(default=0)
+  holds = models.IntegerField(default=0)
+  rolls = models.IntegerField(default=0)
+  mines = models.IntegerField(default=0)
+  lifts = models.IntegerField(default=0)
+  fakes = models.IntegerField(default=0)
 
-  song = models.ForeignKey("Song", on_delete=models.CASCADE)
+  song = models.ForeignKey("Song", related_name="charts", on_delete=models.CASCADE)
 
 
 class Song(models.Model):
