@@ -30,10 +30,8 @@ class UserSerializer(serializers.ModelSerializer):
       },
 
       "username": {
-        "min_length": 2,
-        **error_messages({
-          "invalid": "Can only contain letters, numbers, hyphens, and underscores."
-        })
+        **error_messages(),
+        "min_length": 2
       },
 
       "confirm_password": {
@@ -53,7 +51,9 @@ class UserSerializer(serializers.ModelSerializer):
     super().__init__(*args, **kwargs)
 
   def validate_username(self, val):
-    if not re.search(r"[a-zA-Z\d]", val):
+    if not re.fullmatch(r"[a-zA-Z\d\-_]+", val):
+      raise ValidationError("Can only contain letters, numbers, hyphens, and underscores.")
+    elif not re.search(r"[a-zA-Z\d]", val):
       raise ValidationError("Must contain at least one letter or number.")
 
     return val
