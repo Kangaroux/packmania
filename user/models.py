@@ -3,7 +3,7 @@ from django.db import models
 
 
 class User(AbstractUser):
-  username = models.SlugField("username", max_length=20, unique=True,
+  username = models.CharField("username", max_length=20, unique=True,
     error_messages={
       "unique": "A user with that username already exists."
     })
