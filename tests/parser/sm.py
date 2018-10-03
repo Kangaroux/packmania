@@ -3,7 +3,7 @@ from unittest import TestCase
 
 from django.conf import settings
 
-from lib.parser.sm import ChartInfo, SMParser
+from lib.parser.sm import BPM, ChartInfo, SMParser
 
 
 ABXY_FILE = os.path.join(settings.TEST_DATA_DIR, "abxy.sm")
@@ -32,7 +32,7 @@ class TestSMParser(TestCase):
     self.assertEqual(data.file_name, "abxy.ogg")
     self.assertEqual(data.preview_start, 32.808270)
     self.assertEqual(data.preview_length, 14.545456)
-    self.assertEqual(data.random_bpm, False)
+    self.assertEqual(data.bpm_type, BPM.FIXED)
     self.assertEqual(data.bpm_range, (132.0, 132.0))
     self.assertEqual(data.has_stops, False)
 

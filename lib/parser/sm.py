@@ -1,6 +1,12 @@
 from enum import Enum
 
 
+class BPM(Enum):
+  FIXED = "fixed"
+  RANDOM = "random"
+  VARIES = "varies"
+
+
 class StepInfo:
   """ Information about the song's chart """
 
@@ -98,7 +104,7 @@ class SongInfo:
     self.preview_start = 0
     self.preview_length = 0
     self.has_stops = False
-    self.random_bpm = False
+    self.bpm_type = BPM.FIXED
 
     # When set, this is a 2-tuple of the min and max values for the BPM. If the BPM
     # does not change the min and max will be equal
@@ -119,19 +125,15 @@ class SMParser:
     self.song = SongInfo()
 
   def load_file(self, file_path):
-    """ Loads step information from a file. Returns True/False based on whether the song
-    could be parsed successfully
-    """
+    """ Loads step information from a file """
     with open(file_path, "r") as f:
       s = f.read()
 
-    return self.load_from_string(s)
+    self.load_from_string(s)
 
   def load_from_string(self, s):
-    """ Loads step information from a string. Returns True/False based on whether the song
-    could be parsed successfully
-    """
-    data = self.parse(s)
+    """ Loads step information from a string """
+    self.parse(s)
 
   def parse(self, s):
     """ Simple state-based parser to extract the tags and values from the SM file """
@@ -220,9 +222,14 @@ class SMParser:
             max_bpm = bpm
 
         self.song.bpm_range = (min_bpm, max_bpm)
+
+        if min_bpm == max_bpm:
+          self.song.bpm_type = BPM.FIXED
+        else:
+          self.song.bpm_type = BPM.VARIES
     elif name == "DISPLAYBPM":
       if value == "*":
-        self.song.random_bpm = True
+        self.song.bpm_type = BPM.RANDOM
       else:
         bpm = value.split(":")
 
