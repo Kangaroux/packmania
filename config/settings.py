@@ -72,6 +72,9 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [ os.path.join(BASE_DIR, "build") ]
 
+MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
+MEDIA_URL = "/uploads/"
+
 TEST_DATA_DIR = os.path.join(BASE_DIR, "tests", "test_data")
 
 from .app_settings import *

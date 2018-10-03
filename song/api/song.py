@@ -4,6 +4,7 @@ from ..forms import UploadSongForm
 from ..models import Chart, Song
 from ..serializers import SongSerializer
 from lib.api import APIView
+from lib.upload import handle_song_upload
 
 
 class SongListAPI(APIView):
@@ -23,6 +24,8 @@ class SongListAPI(APIView):
 
     if not form.is_valid():
       return self.form_error(form)
+
+    handle_song_upload(request.user, request.FILES["file"], form.step_file, form.audio_file)
 
     return self.ok()
 
