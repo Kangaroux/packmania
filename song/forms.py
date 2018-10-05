@@ -54,8 +54,8 @@ class UploadSongForm(forms.Form):
 
       uncompressed_size = 0
       dir_name = None
-      audio_file = None
-      step_file = None
+      has_audio_file = False
+      has_step_file = False
 
       if len(files) == 0:
         raise forms.ValidationError("Zip archive is empty.")
@@ -90,12 +90,12 @@ class UploadSongForm(forms.Form):
             ext_valid = True
 
             if ext in self.AUDIO_FILES:
-              if audio_file:
+              if has_audio_file:
                 raise forms.ValidationError("Zip archive cannot contain more than one audio file.")
 
-              audio_file = file
+              has_audio_file = True
             elif ext in self.STEP_FILES:
-              step_file = file
+              has_step_file = True
 
             break
 
@@ -106,7 +106,7 @@ class UploadSongForm(forms.Form):
         uncompressed_size += file.file_size
 
       # FIXME: We check against several step file types but we only support SM currently
-      if not (self.audio_file and self.step_file):
+      if not (has_audio_file and has_step_file):
         raise forms.ValidationError("Zip archive needs to contain at least an audio and step file.")
 
       if uncompressed_size > settings.MAX_SONG_SIZE_UNZIPPED:

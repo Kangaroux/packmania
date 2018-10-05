@@ -4,7 +4,7 @@ import time
 from unittest import TestCase
 
 from django.conf import settings
-# from django.test import override_settings
+from django.core.files.base import File
 
 from lib.parser.sm import SMParser
 from lib.upload import *
@@ -20,8 +20,7 @@ class TestSongUpload(TestCase):
 
   @classmethod
   def setUpClass(cls):
-    # Create a test dir
-    cls.dir = os.path.join("/tmp", str(time.time()))
+    cls.dir = os.path.join("/tmp", "packmania")
     os.makedirs(cls.dir)
 
   @classmethod
@@ -45,8 +44,8 @@ class TestSongUpload(TestCase):
 
     song = create_song(
       self.u,
-      os.path.join(settings.TEST_DATA_DIR, "abxy.zip"),
       parser,
+      os.path.join(settings.TEST_DATA_DIR, "abxy.zip"),
       os.path.join(settings.TEST_DATA_DIR, "ABXY", "abxy.ogg"),
       os.path.join(settings.TEST_DATA_DIR, "ABXY", "abxy-banner.png")
     )
@@ -66,8 +65,8 @@ class TestSongUpload(TestCase):
     self.assertTrue(song.preview_url.startswith(settings.MEDIA_ROOT))
 
   def test_handle_song_upload(self):
-    # with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as zip_file:
-    song = handle_song_upload(self.u, os.path.join(settings.TEST_DATA_DIR, "abxy.zip"))
+    with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:
+      song = handle_song_upload(self.u, File(f, "abxy.zip"))
 
     self.assertEqual(song.uploader, self.u)
     self.assertEqual(song.title, "ABXY")

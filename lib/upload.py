@@ -6,6 +6,7 @@ import uuid
 import zipfile
 
 from django.conf import settings
+from django.core.files.base import File
 
 from lib import util
 from lib.parser.sm import SMParser
@@ -18,16 +19,31 @@ logger = logging.getLogger(__name__)
 def copy_public_file(file, dst="", new_name=None):
   """ Copies `file` to `dst` where `dst` is a publicly viewable directory for hosting
   user files. On dev this is MEDIA_ROOT, and on prod this is an S3 bucket. Returns the
-  full uploaded URI of the file
+  full uploaded URI of the file.
+
+  `file` should be either a file path or a django File object
   """
   new_uri = ""
-  file_name = os.path.basename(file) if not new_name else new_name
+
+  if isinstance(file, File):
+    file_name = file.name
+  else:
+    file_name = os.path.basename(file)
 
   if settings.DEV:
-    new_uri = os.path.join(settings.MEDIA_ROOT, dst, file_name)
+    new_uri = os.path.join(settings.MEDIA_ROOT, dst, new_name if new_name else file_name)
+
     os.makedirs(os.path.dirname(new_uri), exist_ok=True)
 
-    shutil.copyfile(file, new_uri)
+    if isinstance(file, File):
+      with open(new_uri, "wb") as dst_file:
+        for chunk in file.chunks():
+          try:
+            dst_file.write(chunk)
+          except TypeError:
+            dst_file.write(chunk.encode("utf-8"))
+    else:
+      shutil.copyfile(file, new_uri)
   else:
     # TODO
     pass
@@ -36,7 +52,9 @@ def copy_public_file(file, dst="", new_name=None):
 
 
 def handle_song_upload(user, zip_file):
-  """ Creates a new song and chart(s) from a user uploaded zip file """
+  """ Creates a new song and chart(s) from a user uploaded zip file. `zip_file` must be
+  an instance of django.core.files.base.File
+  """
   zf = zipfile.ZipFile(zip_file)
   tmp_dir = os.path.join(settings.TMP_DIR, str(uuid.uuid1()))
   song = None
@@ -71,7 +89,7 @@ def handle_song_upload(user, zip_file):
       banner_file = None
 
     create_preview(parser.song.preview_start, parser.song.preview_length, audio_file)
-    song = create_song(user, zip_file, parser, audio_file, banner_file)
+    song = create_song(user, parser, zip_file, audio_file, banner_file)
   except Exception as e:
     logger.exception("Exception occurred while processing uploaded song")
   finally:
@@ -85,7 +103,7 @@ def create_preview(start, length, audio_file):
   pass
 
 
-def create_song(user, zip_file, data, audio_file, banner_file):
+def create_song(user, data, zip_file, audio_file, banner_file):
   dst = str(uuid.uuid1())
 
   zip_file = copy_public_file(zip_file, dst)

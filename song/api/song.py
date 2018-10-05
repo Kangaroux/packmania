@@ -20,6 +20,9 @@ class SongListAPI(APIView):
     """ Uploads a new song. Songs must be a zip file that contain a single folder
     which contains the files for one song.
     """
+    if not request.user.is_authenticated:
+      return self.not_logged_in()
+
     form = UploadSongForm(request.POST, request.FILES)
 
     if not form.is_valid():
