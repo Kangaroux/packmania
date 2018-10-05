@@ -77,7 +77,7 @@ class Song(models.Model):
   min_bpm = models.FloatField(default=60.0)
   max_bpm = models.FloatField(default=60.0)
 
-  banner_url = models.CharField(max_length=255)
+  banner_url = models.CharField(max_length=255, null=True)
   download_url = models.CharField(max_length=255)
 
   # .mp3 for the song preview

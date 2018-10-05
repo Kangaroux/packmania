@@ -1,6 +1,7 @@
 import os
 
 
+DEV = True
 DEBUG = True
 SECRET_KEY = "hh$iej22(6g=@&#d=r$zi+ypfjdzl4hf8fd+cqm%#7^n!id&*%"
 ALLOWED_HOSTS = []

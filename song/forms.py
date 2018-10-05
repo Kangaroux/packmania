@@ -40,14 +40,12 @@ class UploadSongForm(forms.Form):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
 
-    self.audio_file = None
-    self.step_file = None
-
   def clean_file(self):
     """ Inspects the uploaded file to verify it doesn't contain any malicious files """
     data = self.cleaned_data.get("file")
 
     if data:
+      # Try opening the zip file
       try:
         zf = zipfile.ZipFile(data)
         files = zf.infolist()
@@ -56,6 +54,8 @@ class UploadSongForm(forms.Form):
 
       uncompressed_size = 0
       dir_name = None
+      audio_file = None
+      step_file = None
 
       if len(files) == 0:
         raise forms.ValidationError("Zip archive is empty.")
@@ -84,20 +84,22 @@ class UploadSongForm(forms.Form):
         ext = ext[1].lower()
         ext_valid = False
 
+        # Verify the file contains a valid extension
         for allowed_ext in self.ALLOWED_FILE_EXT:
           if allowed_ext == ext:
             ext_valid = True
 
             if ext in self.AUDIO_FILES:
-              if self.audio_file:
+              if audio_file:
                 raise forms.ValidationError("Zip archive cannot contain more than one audio file.")
 
-              self.audio_file = file
+              audio_file = file
             elif ext in self.STEP_FILES:
-              self.step_file = file
+              step_file = file
 
             break
 
+        # Reject the zip file if it contains a file that shouldn't be there
         if not ext_valid:
           raise forms.ValidationError("Invalid file found: %s" % file.filename)
 

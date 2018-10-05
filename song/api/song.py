@@ -25,7 +25,7 @@ class SongListAPI(APIView):
     if not form.is_valid():
       return self.form_error(form)
 
-    handle_song_upload(request.user, request.FILES["file"], form.step_file, form.audio_file)
+    handle_song_upload(request.user, request.FILES["file"])
 
     return self.ok()
 
