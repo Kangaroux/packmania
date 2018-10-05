@@ -1,6 +1,6 @@
 from django.db import models
 
-from lib.parser.sm import ChartInfo
+from lib.parser.sm import BPM, ChartInfo
 
 
 CHART_CHOICES = (
@@ -36,9 +36,9 @@ GENRE_CHOICES = (
 )
 
 BPM_CHOICES = (
-  ("fixed", "Fixed"),
-  ("random", "Random"),
-  ("varies", "Varies")
+  (BPM.FIXED.value, "Fixed"),
+  (BPM.RANDOM.value, "Random"),
+  (BPM.VARIES.value, "Varies")
 )
 
 
@@ -49,14 +49,14 @@ class Chart(models.Model):
   difficulty = models.CharField(max_length=50, choices=DIFFICULTY_CHOICES)
 
   # Note counts
-  taps = models.IntegerField(default=0)
-  jumps = models.IntegerField(default=0)
+  fakes = models.IntegerField(default=0)
   hands = models.IntegerField(default=0)
   holds = models.IntegerField(default=0)
-  rolls = models.IntegerField(default=0)
-  mines = models.IntegerField(default=0)
+  jumps = models.IntegerField(default=0)
   lifts = models.IntegerField(default=0)
-  fakes = models.IntegerField(default=0)
+  mines = models.IntegerField(default=0)
+  rolls = models.IntegerField(default=0)
+  taps = models.IntegerField(default=0)
 
   song = models.ForeignKey("Song", related_name="charts", on_delete=models.CASCADE)
 

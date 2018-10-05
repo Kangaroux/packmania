@@ -21,14 +21,14 @@ class StepInfo:
     FAKE = "F"
 
   def __init__(self):
-    self.taps = 0
-    self.holds = 0
-    self.rolls = 0
-    self.mines = 0
-    self.lifts = 0
     self.fakes = 0
-    self.jumps = 0
     self.hands = 0
+    self.holds = 0
+    self.jumps = 0
+    self.lifts = 0
+    self.mines = 0
+    self.rolls = 0
+    self.taps = 0
 
 
 class ChartInfo:
