@@ -6,7 +6,7 @@ from django.conf import settings
 from lib.parser.sm import BPM, ChartInfo, SMParser
 
 
-ABXY_FILE = os.path.join(settings.TEST_DATA_DIR, "abxy.sm")
+ABXY_FILE = os.path.join(settings.TEST_DATA_DIR, "ABXY", "abxy.sm")
 
 
 class TestSMParser(TestCase):

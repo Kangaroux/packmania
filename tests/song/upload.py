@@ -13,15 +13,25 @@ class TestUploadSong(TestCase):
   def test_upload_ok(self):
     c = Client()
 
-    with open(os.path.join(settings.TEST_DATA_DIR, "valid_song.zip"), "rb") as f:
+    with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:
       resp = c.post(reverse("api:songs"), { "file": f })
 
     self.assertEqual(resp.status_code, 200)
 
+  @override_settings(MAX_SONG_SIZE_UNZIPPED=1024, MAX_SONG_SIZE_UNZIPPED_TEXT="1KB")
+  def test_upload_file_too_big(self):
+    c = Client()
+
+    with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:
+      resp = c.post(reverse("api:songs"), { "file": f })
+
+    self.assertEqual(resp.status_code, 400)
+    self.assertEqual(resp.json()["fields"]["file"], "File cannot be larger than 1KB when unzipped.")
+
   def test_upload_not_zip(self):
     c = Client()
 
-    with open(os.path.join(settings.TEST_DATA_DIR, "abxy.sm"), "rb") as f:
+    with open(os.path.join(settings.TEST_DATA_DIR, "ABXY", "abxy.sm"), "rb") as f:
       resp = c.post(reverse("api:songs"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
@@ -80,13 +90,3 @@ class TestUploadSong(TestCase):
 
     self.assertEqual(resp.status_code, 400)
     self.assertEqual(resp.json()["fields"]["file"], "Zip archive needs to contain at least an audio and step file.")
-
-  @override_settings(MAX_SONG_SIZE_UNZIPPED=1024, MAX_SONG_SIZE_UNZIPPED_TEXT="1KB")
-  def test_upload_file_too_big(self):
-    c = Client()
-
-    with open(os.path.join(settings.TEST_DATA_DIR, "valid_song.zip"), "rb") as f:
-      resp = c.post(reverse("api:songs"), { "file": f })
-
-    self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "File cannot be larger than 1KB when unzipped.")

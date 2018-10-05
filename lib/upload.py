@@ -15,22 +15,19 @@ from song.models import Chart, Song
 logger = logging.getLogger(__name__)
 
 
-def copy_public_file(file, dst, new_name=None):
+def copy_public_file(file, dst="", new_name=None):
   """ Copies `file` to `dst` where `dst` is a publicly viewable directory for hosting
   user files. On dev this is MEDIA_ROOT, and on prod this is an S3 bucket. Returns the
   full uploaded URI of the file
   """
   new_uri = ""
-  file_dir = os.path.dirname(file)
   file_name = os.path.basename(file) if not new_name else new_name
 
   if settings.DEV:
-    new_uri = os.path.join(settings.MEDIA_ROOT, dst, file_dir, file_name)
-    os.makedirs(os.path.dirname(new_uri))
+    new_uri = os.path.join(settings.MEDIA_ROOT, dst, file_name)
+    os.makedirs(os.path.dirname(new_uri), exist_ok=True)
 
-    with open(file, "r") as src_file, open(new_uri, "w") as dst_file:
-      for chunk in src_file.chunks():
-        dst_file.write(chunk)
+    shutil.copyfile(file, new_uri)
   else:
     # TODO
     pass
@@ -96,26 +93,28 @@ def create_song(user, zip_file, data, audio_file, banner_file):
 
   if banner_file:
     banner_file = copy_public_file(banner_file, dst, new_name=util.rename_file(banner_file, "banner"))
+  else:
+    banner_file = None
 
   # Create a new Song instance
   song = Song.objects.create(
     uploader=user,
-    artist=parser.display.artist,
-    author=parser.display.author,
-    subtitle=parser.display.subtitle,
-    title=parser.display.title,
+    artist=data.display.artist,
+    author=data.display.author,
+    subtitle=data.display.subtitle,
+    title=data.display.title,
 
     # TODO: Try and match the genre
-    # genre=parser.display.genre,
+    # genre=data.display.genre,
 
-    has_stops=parser.song.has_stops,
-    bpm_type=parser.song.bpm_type.value,
-    min_bpm=parser.song.bpm_range[0],
-    max_bpm=parser.song.bpm_range[1],
+    has_stops=data.song.has_stops,
+    bpm_type=data.song.bpm_type.value,
+    min_bpm=data.song.bpm_range[0],
+    max_bpm=data.song.bpm_range[1],
 
-    download_url=new_uris[0],
-    preview_url=new_uris[1],
-    banner_url=new_uris[2] if banner_file else None
+    download_url=zip_file,
+    preview_url=audio_file,
+    banner_url=banner_file
   )
 
   # Bulk insert the charts for the song
@@ -135,7 +134,7 @@ def create_song(user, zip_file, data, audio_file, banner_file):
       taps=chart.steps.taps,
 
       song=song
-    ) for chart in parser.charts
+    ) for chart in data.charts
   ])
 
   return song

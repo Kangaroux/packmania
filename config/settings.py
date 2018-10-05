@@ -1,8 +1,8 @@
 import os
 
 
-DEV = True
 DEBUG = True
+DEV = True
 SECRET_KEY = "hh$iej22(6g=@&#d=r$zi+ypfjdzl4hf8fd+cqm%#7^n!id&*%"
 ALLOWED_HOSTS = []
 APPEND_SLASH = False
@@ -77,6 +77,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")
 MEDIA_URL = "/uploads/"
 
 TEST_DATA_DIR = os.path.join(BASE_DIR, "tests", "test_data")
-TMP_DIR = "/tmp/"
+TMP_DIR = os.path.join(BASE_DIR, "tmp", "packmania")
 
 from .app_settings import *

@@ -1,6 +1,7 @@
 from .settings import *
 
 DEBUG = False
+DEV = False
 
 REST_FRAMEWORK = {
   "DEFAULT_RENDERER_CLASSES": (

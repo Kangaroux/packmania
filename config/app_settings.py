@@ -1,5 +1,3 @@
-DEV = False
-
 # Zipped file size
 MAX_SONG_SIZE = 30_000_000
 MAX_SONG_SIZE_TEXT = "30MB"
