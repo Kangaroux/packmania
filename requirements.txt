@@ -1,6 +1,6 @@
 argon2-cffi==18.3.0
 cffi==1.11.5
-Django==2.1.1
+Django==2.1.2
 djangorestframework==3.8.2
 pycparser==2.19
 pytz==2018.5
