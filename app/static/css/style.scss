@@ -8,8 +8,9 @@
 
 @import "components/nav";
 @import "components/signup";
-@import "views/home";
 @import "forms/input";
+@import "views/home";
+@import "views/transition";
 
 // This must come after the other form inputs
 @import "forms/error";

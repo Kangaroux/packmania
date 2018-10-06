@@ -39,6 +39,15 @@
 
       <input type="submit" class="form-submit-btn" value="Create Account" />
     </Form>
+
+    <p class="footer-links">
+      <router-link :to="{ name: 'login' }">
+        I already have an account.
+      </router-link>
+      <router-link :to="{ name: 'forgot-password' }">
+        I forgot my password.
+      </router-link>
+    </p>
   </div>
 </template>
 

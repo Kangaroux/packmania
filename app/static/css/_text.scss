@@ -5,7 +5,13 @@ body {
 
 a, a:visited {
   cursor: pointer;
-  color: $col-blue;
+  color: darken($col-light-blue, 5%);
+  text-decoration: none;
+
+  &:hover {
+    color: $col-light-blue;
+    text-decoration: underline;
+  }
 }
 
 h2 {

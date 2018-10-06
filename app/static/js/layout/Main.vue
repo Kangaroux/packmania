@@ -1,7 +1,10 @@
 <template>
   <div>
     <AppNav />
-    <router-view></router-view>
+
+    <transition name="fade">
+      <router-view></router-view>
+    </transition>
   </div>
 </template>
 
