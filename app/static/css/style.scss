@@ -1,6 +1,12 @@
 @import "var";
 @import "mixin";
+
 @import "core";
+@import "layout";
+@import "text";
 @import "util";
 
 @import "components/nav";
+@import "components/signup";
+@import "forms/input";
+@import "views/home";

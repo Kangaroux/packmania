@@ -10,11 +10,5 @@ body, html {
 
 body {
   background-color: $col-black;
-  color: $col-black;
-  font-family: "Open Sans", sans-serif;
-}
-
-a, a:visited {
-  cursor: pointer;
-  color: $col-blue;
+  color: $col-light-gray;
 }

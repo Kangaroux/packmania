@@ -16,6 +16,14 @@ const routes = [
         }
       },
       {
+        name: "signup",
+        path: "signup",
+        component: require("./views/Account/Signup").default,
+        meta: {
+          title: "Sign Up Page"
+        }
+      },
+      {
         name: "login",
         path: "login",
         component: require("./views/Account/Login").default,
@@ -29,6 +37,22 @@ const routes = [
         component: require("./views/Account/Logout").default,
         meta: {
           title: "Log out Page"
+        }
+      },
+      {
+        name: "songs",
+        path: "songs",
+        component: require("./views/Songs").default,
+        meta: {
+          title: "Songs Page"
+        }
+      },
+      {
+        name: "packs",
+        path: "packs",
+        component: require("./views/Packs").default,
+        meta: {
+          title: "Packs Page"
         }
       },
     ],

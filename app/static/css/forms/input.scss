@@ -1,0 +1,26 @@
+.form-input {
+  display: block;
+  width: 100%;
+  background-color: $col-dark-gray;
+  color: $col-light-gray;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.form-submit-btn {
+  display: block;
+  width: 100%;
+  background-color: $col-blue;
+  padding: 10px;
+  border: 0;
+  border-radius: 5px;
+  color: #D5D5D5;
+  font-weight: bold;
+  margin-top: 15px;
+
+  &:hover {
+    background-color: darken($col-blue, 5%);
+  }
+}
