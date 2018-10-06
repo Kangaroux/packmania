@@ -92,7 +92,7 @@ class APIView(RestFrameworkAPIView):
     if msg:
       resp["msg"] = msg
 
-    if data:
+    if data is not None:
       if isinstance(data, list):
         resp["results"] = data
       else:
