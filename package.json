@@ -10,11 +10,23 @@
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^5.0.0",
     "gulp-sass": "^4.0.1",
+    "vue-loader": "^15.4.2",
+    "vue-template-compiler": "^2.5.17",
     "webpack": "^4.16.1",
     "webpack-cli": "^3.1.0"
   },
   "scripts": {
     "dev": "rm -rf dist/*\n gulp watch &\n webpack --watch --progress --colors --devtool eval-cheap-module-source-map --mode development\n wait",
     "prod": "rm -rf dist/*\n gulp &\n webpack --progress --colors -p\n wait"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "js-cookie": "^2.2.0",
+    "normalize.scss": "^0.1.0",
+    "promise": "^8.0.2",
+    "qs": "^6.5.2",
+    "vue": "^2.5.17",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
   }
 }

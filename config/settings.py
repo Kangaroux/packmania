@@ -1,6 +1,7 @@
 import os
 
 
+TESTING = False
 DEBUG = True
 DEV = True
 SECRET_KEY = "hh$iej22(6g=@&#d=r$zi+ypfjdzl4hf8fd+cqm%#7^n!id&*%"
@@ -22,6 +23,7 @@ INSTALLED_APPS = [
   "django.contrib.staticfiles",
   "rest_framework",
 
+  "app",
   "song",
   "user",
 ]

@@ -1,0 +1,27 @@
+.header-nav {
+  background-color: $col-white;
+  padding: $padding;
+  font-weight: bold;
+}
+
+.nav-links {
+  position: relative;
+}
+
+.nav-list {
+  position: absolute;
+  top: 30px;
+  padding: $padding;
+  background-color: $col-white;
+  border-radius: 5px;
+  @include box-shadow;
+}
+
+.nav-list-item {
+  display: block;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
