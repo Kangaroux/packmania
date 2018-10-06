@@ -9,7 +9,7 @@
       :maxlength="maxlength"
       />
 
-    <p v-if="fieldError">ERROR: {{ fieldError }}</p>
+    <p class="form-error-text" v-if="fieldError">{{ fieldError }}</p>
   </div>
 </template>
 
@@ -23,12 +23,16 @@
       "type",
       "value",
     ],
+
     computed: {
       getClass() {
         let cls = "form-input";
 
         if(this.class)
           cls += " " + this.class;
+
+        if(this.fieldError)
+          cls += " form-input-error";
 
         return cls;
       }

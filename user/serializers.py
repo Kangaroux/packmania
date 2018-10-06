@@ -15,7 +15,7 @@ PRIVATE_FIELDS = ("email",)
 class UserSerializer(serializers.ModelSerializer):
 
   # We won't require users to give their current password in order to change it
-  confirm_password = CharField(max_length=100, trim_whitespace=False, write_only=True)
+  confirm_password = CharField(max_length=100, trim_whitespace=False, write_only=True, allow_blank=True)
 
   class Meta:
     model = User

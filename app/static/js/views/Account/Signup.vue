@@ -13,7 +13,7 @@
       </ul>
     </p>
 
-    <Form :formError="formError" @submit="signup">
+    <Form @submit="signup">
       <TextInput
         v-model="username"
         placeholder="username"
@@ -31,9 +31,9 @@
         :fieldError="fieldErrors.password"
         type="password" />
       <TextInput
-        v-model="confirmPassword"
+        v-model="confirm_password"
         placeholder="confirm password"
-        :fieldError="fieldErrors.confirmPassword"
+        :fieldError="fieldErrors.confirm_password"
         type="password"
         />
 
@@ -54,23 +54,21 @@
         username: "",
         email: "",
         password: "",
-        confirmPassword: "",
-        formError: "",
+        confirm_password: "",
         fieldErrors: {}
       }
     },
 
     methods: {
       signup() {
-        this.$store.dispatch("signup", {
+        this.$store.dispatch("signUp", {
           username: this.username,
           email: this.email,
           password: this.password,
-          confirmPassword: this.confirm_password
+          confirm_password: this.confirm_password
         })
-        .then(() => this.$router.push({ path: "home" }))
+        .then(() => this.$router.push({ name: "home" }))
         .catch((err) => {
-          this.formError = err.formError;
           this.fieldErrors = err.fieldErrors;
         });
       }

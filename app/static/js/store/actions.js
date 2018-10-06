@@ -6,9 +6,9 @@ import Transform from "./transform";
 
 export default {
   /* Verifies the user's credentials and then loads the user's data */
-  login({ commit, dispatch }, { email, password }) {
+  login({ commit, dispatch }, data) {
     return new Promise((resolve, reject) => {
-      Axios.post(API.session, Qs.stringify({ email, password }))
+      Axios.post(API.session, Qs.stringify(data))
       .then((resp) => {
         commit("login", Transform.user(resp.data.user));
         resolve();
@@ -71,4 +71,15 @@ export default {
       });
     });
   },
+
+  /* Registers the user */
+  signUp({ commit }, data) {
+    return new Promise((resolve, reject) => {
+      Axios.post(API.user, Qs.stringify(data))
+      .then((resp) => {
+        resolve();
+      })
+      .catch((err) => reject(Transform.form(err)));
+    });
+  }
 };
