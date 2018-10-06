@@ -1,10 +1,10 @@
 import os
 import shutil
 import time
-from unittest import TestCase
 
 from django.conf import settings
 from django.core.files.base import File
+from django.test import TestCase
 
 from lib.parser.sm import SMParser
 from lib.upload import *
@@ -12,20 +12,21 @@ from user.models import User
 
 
 class TestSongUpload(TestCase):
-  def setUp(self):
-    self.u = User.objects.create(username="test_user", email="test@test.com")
-
-  def tearDown(self):
-    self.u.delete()
+  @classmethod
+  def setUpTestData(cls):
+    cls.u = User.objects.create_user("test_user", "test@test.com")
 
   @classmethod
   def setUpClass(cls):
+    super().setUpClass()
     cls.dir = os.path.join("/tmp", "packmania")
     os.makedirs(cls.dir)
 
   @classmethod
   def tearDownClass(cls):
+    super().tearDownClass()
     shutil.rmtree(cls.dir)
+
 
   def test_copy_public_file(self):
     src = os.path.join(self.dir, "test_file.foo")

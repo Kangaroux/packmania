@@ -1,7 +1,7 @@
 import os.path
-from unittest import TestCase
 
 from django.conf import settings
+from django.test import TestCase
 
 from lib.parser.sm import BPM, ChartInfo, SMParser
 
@@ -12,6 +12,7 @@ ABXY_FILE = os.path.join(settings.TEST_DATA_DIR, "ABXY", "abxy.sm")
 class TestSMParser(TestCase):
   def setUp(self):
     self.p = SMParser()
+
 
   def test_parse_display_info(self):
     self.p.load_file(ABXY_FILE)

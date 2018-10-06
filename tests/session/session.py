@@ -1,34 +1,31 @@
 from django.shortcuts import reverse
-from django.test import Client, TestCase
+from django.test import TestCase
 
 from user.models import User
 
 
 class TestSessionAPI(TestCase):
-  def setUp(self):
-    self.password = "password"
-    self.u = User(username="test_user", email="test@test.com")
-    self.u.set_password(self.password)
-    self.u.save()
+  @classmethod
+  def setUpTestData(cls):
+    cls.password = "password"
+    cls.u = User.objects.create_user("test_user", "test@test.com", cls.password)
+
 
   def test_not_logged_in(self):
-    c = Client()
-    resp = c.get(reverse("api:session"))
+    resp = self.client.get(reverse("api:session"))
 
     self.assertEqual(resp.json()["authenticated"], False)
     self.assertEqual(resp.json()["user_id"], None)
 
   def test_logged_in(self):
-    c = Client()
-    c.force_login(self.u)
-    resp = c.get(reverse("api:session"))
+    self.client.force_login(self.u)
+    resp = self.client.get(reverse("api:session"))
 
     self.assertEqual(resp.json()["authenticated"], True)
     self.assertEqual(resp.json()["user_id"], self.u.id)
 
   def test_login_ok(self):
-    c = Client()
-    resp = c.post(reverse("api:session"), {
+    resp = self.client.post(reverse("api:session"), {
       "email": self.u.email,
       "password": self.password
     })
@@ -37,8 +34,7 @@ class TestSessionAPI(TestCase):
     self.assertEqual(resp.json()["user_id"], self.u.id)
 
   def test_login_missing_credentials(self):
-    c = Client()
-    resp = c.post(reverse("api:session"))
+    resp = self.client.post(reverse("api:session"))
 
     self.assertEqual(resp.status_code, 400)
     self.assertEqual(resp.json()["fields"], {
@@ -47,8 +43,7 @@ class TestSessionAPI(TestCase):
     })
 
   def test_login_ok_case_insensitive_email(self):
-    c = Client()
-    resp = c.post(reverse("api:session"), {
+    resp = self.client.post(reverse("api:session"), {
       "email": self.u.email.upper(),
       "password": self.password
     })
@@ -57,8 +52,7 @@ class TestSessionAPI(TestCase):
     self.assertEqual(resp.json()["user_id"], self.u.id)
 
   def test_login_bad_email(self):
-    c = Client()
-    resp = c.post(reverse("api:session"), {
+    resp = self.client.post(reverse("api:session"), {
       "email": "wrong@email.com",
       "password": self.password
     })
@@ -70,8 +64,7 @@ class TestSessionAPI(TestCase):
     })
 
   def test_login_bad_password(self):
-    c = Client()
-    resp = c.post(reverse("api:session"), {
+    resp = self.client.post(reverse("api:session"), {
       "email": self.u.email,
       "password": "badpassword"
     })
@@ -83,9 +76,8 @@ class TestSessionAPI(TestCase):
     })
 
   def test_logout(self):
-    c = Client()
-    c.force_login(self.u)
-    resp = c.delete(reverse("api:session"))
+    self.client.force_login(self.u)
+    resp = self.client.delete(reverse("api:session"))
 
     self.assertEqual(resp.status_code, 200)
-    self.assertEqual(c.session.get("_auth_user_id"), None)
+    self.assertEqual(self.client.session.get("_auth_user_id"), None)

@@ -1,16 +1,13 @@
 import re
 
 from django.shortcuts import reverse
-from django.test import Client, TestCase
+from django.test import TestCase
 
 from user.models import User
 from user.serializers import UserSerializer
 
 
 class TestSerializer(TestCase):
-  def setUp(self):
-    User.objects.all().delete()
-
   def test_serialize_user_instance(self):
     u = User.objects.create(
       username="test_user",
@@ -43,10 +40,7 @@ class TestSerializer(TestCase):
     self.assertTrue(u.check_password("testpass"))
 
   def test_update_user(self):
-    u = User(username="test_user", email="test@test.com")
-    u.set_password("password123")
-    u.save()
-
+    u = User.objects.create_user(username="test_user", email="test@test.com", password="password123")
     user_id = u.id
 
     UserSerializer().update(u, {
