@@ -23,7 +23,7 @@ class TestSessionAPI(TestCase):
     resp = self.client.get(reverse("api:session"))
 
     self.assertEqual(resp.json()["authenticated"], True)
-    self.assertEqual(resp.json()["user"], UserSerializer(self.u).data)
+    self.assertEqual(resp.json()["user"], UserSerializer(self.u, show_private_fields=True).data)
 
   def test_login_ok(self):
     resp = self.client.post(reverse("api:session"), {
@@ -32,7 +32,7 @@ class TestSessionAPI(TestCase):
     })
 
     self.assertEqual(resp.status_code, 200)
-    self.assertEqual(resp.json()["user"], UserSerializer(self.u).data)
+    self.assertEqual(resp.json()["user"], UserSerializer(self.u, show_private_fields=True).data)
 
   def test_login_missing_credentials(self):
     resp = self.client.post(reverse("api:session"))
@@ -50,7 +50,7 @@ class TestSessionAPI(TestCase):
     })
 
     self.assertEqual(resp.status_code, 200)
-    self.assertEqual(resp.json()["user"], UserSerializer(self.u).data)
+    self.assertEqual(resp.json()["user"], UserSerializer(self.u, show_private_fields=True).data)
 
   def test_login_bad_email(self):
     resp = self.client.post(reverse("api:session"), {

@@ -16,7 +16,7 @@ class SessionAPI(APIView):
     }
 
     if request.user.is_authenticated:
-      data["user"] = UserSerializer(request.user).data
+      data["user"] = UserSerializer(request.user, show_private_fields=True).data
     else:
       data["user"] = None
 
