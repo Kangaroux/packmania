@@ -36,12 +36,12 @@ class UserSerializer(serializers.ModelSerializer):
 
       "confirm_password": {
         **error_messages(),
-        "min_length": 8
+        "min_length": 6
       },
 
       "password": {
         **error_messages(),
-        "min_length": 8,
+        "min_length": 6,
         "write_only": True
       }
     }

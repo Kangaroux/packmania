@@ -16,6 +16,9 @@ class UserListAPI(APIView):
 
   def post(self, request, format=None):
     """ Create a new user """
+    if request.user.is_authenticated:
+      return self.error("Logout before trying to create a new user.")
+
     serializer = UserSerializer(data=request.data)
 
     if not serializer.is_valid():
