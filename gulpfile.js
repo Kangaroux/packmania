@@ -7,6 +7,7 @@ const src = "app/static/";
 const dst = "build/";
 const paths = {
   css: {
+    watch: src + "css/**/*.scss",
     src: src + "css/style.scss",
     dst: dst
   },
@@ -54,7 +55,7 @@ Gulp.task("scss", function() {
 });
 
 Gulp.task("scss:watch", function () {
-  Gulp.watch(paths.css.src, ["scss"]);
+  Gulp.watch(paths.css.watch, ["scss"]);
 });
 
 

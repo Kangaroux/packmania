@@ -1,27 +1,46 @@
 .header-nav {
-  background-color: $col-white;
-  padding: $padding;
-  font-weight: bold;
-}
+  background-color: $col-dark-gray;
+  height: 72px;
+  padding: 0 20px 0 10px;
 
-.nav-links {
-  position: relative;
-}
+  .banner {
+    position: relative;
+    top: 53%;
+    transform: translateY(-50%);
+    display: inline-block;
+    float: left;
+  }
 
-.nav-list {
-  position: absolute;
-  top: 30px;
-  padding: $padding;
-  background-color: $col-white;
-  border-radius: 5px;
-  @include box-shadow;
-}
+  .nav-links {
+    float: right;
+    height: 100%;
+  }
 
-.nav-list-item {
-  display: block;
-  cursor: pointer;
+  .nav-link {
+    display: inline-block;
+    height: 100%;
+    text-align: center;
+    padding: 0px 20px;
+    margin-left: 5px;
 
-  &:hover {
-    text-decoration: underline;
+    color: $col-gray;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+
+    span {
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-block;
+    }
+
+    &:hover {
+      background-color: lighten($col-black, 8%);
+    }
+  }
+
+  .nav-link-highlighted {
+    color: $col-light-blue;
   }
 }

@@ -8,11 +8,11 @@ const routes = [
     component: require("./layout/Main").default,
     children: [
       {
-        name: "landing",
+        name: "home",
         path: "",
-        component: require("./views/Landing").default,
+        component: require("./views/Home").default,
         meta: {
-          title: "Landing Page"
+          title: "Home Page"
         }
       },
       {
