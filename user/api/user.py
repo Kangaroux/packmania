@@ -36,11 +36,6 @@ class UserDetailAPI(LoginRequiredMixin, APIView):
     except User.DoesNotExist:
       return self.error("User does not exist.", status=404)
 
-    # Hide private fields from users who should not see them
-    if request.user.id != pk:
-      for field in PRIVATE_FIELDS:
-        data.pop(field, None)
-
     return self.ok(data)
 
   def patch(self, request, pk, format=None):
