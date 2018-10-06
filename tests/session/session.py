@@ -2,6 +2,7 @@ from django.shortcuts import reverse
 from django.test import TestCase
 
 from user.models import User
+from user.serializers import UserSerializer
 
 
 class TestSessionAPI(TestCase):
@@ -15,14 +16,14 @@ class TestSessionAPI(TestCase):
     resp = self.client.get(reverse("api:session"))
 
     self.assertEqual(resp.json()["authenticated"], False)
-    self.assertEqual(resp.json()["user_id"], None)
+    self.assertEqual(resp.json()["user"], None)
 
   def test_logged_in(self):
     self.client.force_login(self.u)
     resp = self.client.get(reverse("api:session"))
 
     self.assertEqual(resp.json()["authenticated"], True)
-    self.assertEqual(resp.json()["user_id"], self.u.id)
+    self.assertEqual(resp.json()["user"], UserSerializer(self.u).data)
 
   def test_login_ok(self):
     resp = self.client.post(reverse("api:session"), {
@@ -31,7 +32,7 @@ class TestSessionAPI(TestCase):
     })
 
     self.assertEqual(resp.status_code, 200)
-    self.assertEqual(resp.json()["user_id"], self.u.id)
+    self.assertEqual(resp.json()["user"], UserSerializer(self.u).data)
 
   def test_login_missing_credentials(self):
     resp = self.client.post(reverse("api:session"))
@@ -49,7 +50,7 @@ class TestSessionAPI(TestCase):
     })
 
     self.assertEqual(resp.status_code, 200)
-    self.assertEqual(resp.json()["user_id"], self.u.id)
+    self.assertEqual(resp.json()["user"], UserSerializer(self.u).data)
 
   def test_login_bad_email(self):
     resp = self.client.post(reverse("api:session"), {
