@@ -9,6 +9,44 @@
   margin-bottom: 5px;
 }
 
+.form-input-checkbox {
+  cursor: pointer;
+  display: block;
+
+  input[type="checkbox"] {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+  }
+
+  span {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .fake-checkbox {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: $col-dark-gray;
+    border-radius: 5px;
+    text-align: center;
+
+    .el {
+      color: $col-light-blue;
+      position: relative;
+      top: 2px;
+    }
+  }
+
+  &:hover {
+    .fake-checkbox {
+      background-color: lighten($col-dark-gray, 2%);
+    }
+  }
+}
+
 .form-submit-btn {
   display: block;
   width: 100%;

@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1>Login page</h1>
+  <div class="container login-container">
+    <h2>LOG IN</h2>
     <Form :formError="formError" @submit="login">
       <TextInput
         type="email"
@@ -15,22 +15,39 @@
         :fieldError="fieldErrors.password"
         />
 
-      <input type="submit" value="Log in" />
+      <CheckboxInput
+        v-model="remember_me"
+        label="Keep me logged in."
+        />
+
+      <input type="submit" class="form-submit-btn" value="Log in" />
     </Form>
+
+    <p class="footer-links">
+      <router-link :to="{ name: 'signup' }">
+        I need to create an account.
+      </router-link>
+      <router-link :to="{ name: 'forgot-password' }">
+        I forgot my password.
+      </router-link>
+    </p>
   </div>
 </template>
 
 <script>
   import Form from "~/components/Form";
+  import CheckboxInput from "~/components/CheckboxInput";
   import TextInput from "~/components/TextInput";
 
   export default {
-    components: { Form, TextInput },
+    components: { Form, CheckboxInput, TextInput },
 
     data() {
       return {
         email: "",
         password: "",
+        remember_me: false,
+
         formError: "",
         fieldErrors: {},
       };
@@ -43,7 +60,7 @@
           email: this.email,
           password: this.password
         })
-        .then(() => this.$router.push({ path: "projects" }))
+        .then(() => this.$router.push({ name: "home" }))
         .catch((err) => {
           this.formError = err.formError;
           this.fieldErrors = err.fieldErrors;

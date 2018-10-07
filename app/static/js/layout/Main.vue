@@ -5,6 +5,9 @@
     <transition name="fade">
       <router-view></router-view>
     </transition>
+
+    <!-- Preload the elusive icons font -->
+    <i class="el el-ok" style="position:absolute;z-index:-1;opacity:0;"></i>
   </div>
 </template>
 

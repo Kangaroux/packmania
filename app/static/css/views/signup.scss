@@ -1,9 +1,6 @@
 .signup-container {
+  @extend .modal-container;
   max-width: 330px;
-  margin-top: 50px;
-  padding: 15px;
-  background-color: lighten($col-dark-gray, 7%);
-  border-radius: 5px;
 
   .footer-links {
     text-align: center;

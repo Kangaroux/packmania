@@ -16,7 +16,7 @@
 <script>
   export default {
     props: [
-      "class",
+      "className",
       "fieldError",
       "maxlength",
       "placeholder",
@@ -29,7 +29,7 @@
         let cls = "form-input";
 
         if(this.class)
-          cls += " " + this.class;
+          cls += " " + this.className;
 
         if(this.fieldError)
           cls += " form-input-error";

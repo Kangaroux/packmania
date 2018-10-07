@@ -13,7 +13,7 @@
       </ul>
     </p>
 
-    <Form @submit="signup">
+    <Form :formError="formError" @submit="signup">
       <TextInput
         v-model="username"
         placeholder="username"
@@ -64,6 +64,8 @@
         email: "",
         password: "",
         confirm_password: "",
+
+        formError: "",
         fieldErrors: {}
       }
     },
@@ -78,6 +80,7 @@
         })
         .then(() => this.$router.push({ name: "home" }))
         .catch((err) => {
+          this.formError = err.formError;
           this.fieldErrors = err.fieldErrors;
         });
       }

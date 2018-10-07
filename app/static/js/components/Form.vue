@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p v-if="formError">ERROR: {{ formError }}</p>
+    <p class="form-error-text" v-if="formError">{{ formError }}</p>
     <form @submit.prevent="$emit('submit', $event.target)">
       <slot></slot>
     </form>
