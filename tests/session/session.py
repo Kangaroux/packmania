@@ -33,6 +33,18 @@ class TestSessionAPI(TestCase):
 
     self.assertEqual(resp.status_code, 200)
     self.assertEqual(resp.json()["user"], UserSerializer(self.u, show_private_fields=True).data)
+    self.assertTrue(self.client.session.get_expire_at_browser_close())
+
+  def test_login_remember_me(self):
+    resp = self.client.post(reverse("api:session"), {
+      "email": self.u.email,
+      "password": self.password,
+      "remember_me": None
+    })
+
+    self.assertEqual(resp.status_code, 200)
+    self.assertEqual(resp.json()["user"], UserSerializer(self.u, show_private_fields=True).data)
+    self.assertFalse(self.client.session.get_expire_at_browser_close())
 
   def test_login_missing_credentials(self):
     resp = self.client.post(reverse("api:session"))

@@ -6,6 +6,7 @@ from .models import User
 class LoginForm(forms.Form):
   email = forms.EmailField()
   password = forms.CharField()
+  remember_me = forms.BooleanField(required=False)
 
   def clean(self):
     email = self.cleaned_data.get("email")

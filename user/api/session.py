@@ -33,6 +33,10 @@ class SessionAPI(APIView):
 
     login(request, form.user)
 
+    # Expire the user's session when they close their browser
+    if not form.cleaned_data.get("remember_me"):
+      request.session.set_expiry(0)
+
     return self.get(request)
 
   def delete(self, request, format=None):
