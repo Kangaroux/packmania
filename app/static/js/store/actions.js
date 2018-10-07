@@ -8,6 +8,9 @@ export default {
   /* Verifies the user's credentials and then loads the user's data */
   login({ commit, dispatch }, data) {
     return new Promise((resolve, reject) => {
+      if(data.remember_me !== true)
+        delete data["remember_me"];
+
       Axios.post(API.session, Qs.stringify(data))
       .then((resp) => {
         commit("login", Transform.user(resp.data.user));

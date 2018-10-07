@@ -58,7 +58,8 @@
       login() {
         this.$store.dispatch("login", {
           email: this.email,
-          password: this.password
+          password: this.password,
+          remember_me: this.remember_me
         })
         .then(() => this.$router.push({ name: "home" }))
         .catch((err) => {
