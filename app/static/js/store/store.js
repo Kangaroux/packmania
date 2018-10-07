@@ -10,10 +10,6 @@ function createStore() {
       user: null,
 
       users: {},
-
-      ready: {
-        session: false,
-      }
     },
 
     mutations: {
@@ -25,22 +21,11 @@ function createStore() {
         Vue.set(state.users, user.id, user);
         state.user = user;
         state.loggedIn = true;
-
-        this.commit("ready", "session");
       },
 
       logout(state) {
         state.user = null;
         state.loggedIn = false;
-        state.users = {};
-        state.projects = {};
-      },
-
-      ready(state, component) {
-        if(state.ready[component] === undefined)
-          console.error("Unknown component marked as ready:", component);
-
-        Vue.set(state.ready, component, true);
       }
     },
 

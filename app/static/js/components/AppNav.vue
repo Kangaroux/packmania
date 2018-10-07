@@ -18,7 +18,9 @@
 
       <!-- LOGGED IN -->
       <template v-if="$store.state.loggedIn">
-        <a class="nav-link" @click.prevent="logout">Log out</a>
+        <router-link class="nav-link" :to="{ name: 'logout' }">
+          <span>Log out</span>
+        </router-link>
       </template>
 
       <!-- LOGGED OUT -->
@@ -33,11 +35,6 @@
 
 <script>
   export default {
-    data() {
-      return {
-        showProjectList: false
-      };
-    },
     methods: {
       logout() {
         this.$store.dispatch("logout")

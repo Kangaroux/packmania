@@ -30,6 +30,4 @@ store.dispatch("getCurrentSession")
   // Destroy the loading spinner and mount the app
   document.getElementById("loading-placeholder").remove();
   app.$mount($el);
-
-  console.log("mounted")
 });

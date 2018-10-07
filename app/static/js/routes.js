@@ -21,6 +21,9 @@ const routes = [
         component: require("./views/Account/Signup").default,
         meta: {
           title: "Sign Up Page"
+        },
+        beforeEnter(to, from, next) {
+          next(!window.store.state.loggedIn);
         }
       },
       {
@@ -29,14 +32,17 @@ const routes = [
         component: require("./views/Account/Login").default,
         meta: {
           title: "Log in Page"
+        },
+        beforeEnter(to, from, next) {
+          next(!window.store.state.loggedIn);
         }
       },
       {
         name: "logout",
         path: "logout",
-        component: require("./views/Account/Logout").default,
-        meta: {
-          title: "Log out Page"
+        beforeEnter(to, from, next) {
+          window.store.dispatch("logout")
+          .then(() => next({ name: "login" }));
         }
       },
       {
@@ -64,7 +70,7 @@ const router = new VueRouter({ routes });
 router.beforeEach((to, from, next) => {
   // Redirect the user to the login page if they try to visit a page and aren't
   // logged in
-  if(to.meta.loginRequired && window.store.state.ready.session && !window.store.state.loggedIn) {
+  if(to.meta.loginRequired && !window.store.state.loggedIn) {
     next({ name: "login" });
   } else {
     next();
