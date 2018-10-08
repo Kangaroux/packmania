@@ -17,7 +17,8 @@
 
       <CheckboxInput
         v-model="remember_me"
-        label="Keep me logged in."
+        label="Keep me logged in"
+        className="remember-me"
         />
 
       <input type="submit" class="form-submit-btn" value="Log in" />

@@ -12,6 +12,7 @@
 .form-input-checkbox {
   cursor: pointer;
   display: block;
+  height: 20px;
 
   input[type="checkbox"] {
     position: absolute;
@@ -20,9 +21,8 @@
   }
 
   span {
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
+    padding-left: 2px;
+    vertical-align: top;
   }
 
   .fake-checkbox {

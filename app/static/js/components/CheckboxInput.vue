@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="className">
     <label class="form-input-checkbox" @click="onChange">
       <input
         type="checkbox"
@@ -21,6 +21,7 @@
 <script>
   export default {
     props: [
+      "className",
       "fieldError",
       "value",
       "label"
