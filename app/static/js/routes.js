@@ -46,6 +46,15 @@ const routes = [
         }
       },
       {
+        name: "upload",
+        path: "upload",
+        component: require("./views/Upload").default,
+        meta: {
+          title: "Upload Page",
+          loginRequired: true
+        }
+      },
+      {
         name: "songs",
         path: "songs",
         component: require("./views/Songs").default,
@@ -70,7 +79,8 @@ const router = new VueRouter({ routes });
 router.beforeEach((to, from, next) => {
   // Redirect the user to the login page if they try to visit a page and aren't
   // logged in
-  if(to.meta.loginRequired && !window.store.state.loggedIn) {
+  if(to.meta.loginRequired && window.store.state.ready.session && !window.store.state.loggedIn) {
+    window.store.commit("redirectedToLogin");
     next({ name: "login" });
   } else {
     next();

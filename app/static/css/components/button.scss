@@ -1,0 +1,21 @@
+.btn {
+  padding: 10px;
+  border: 0;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.btn-blue {
+  background-color: $col-blue;
+  color: #D5D5D5;
+
+  &:hover {
+    background-color: darken($col-blue, 5%);
+  }
+}

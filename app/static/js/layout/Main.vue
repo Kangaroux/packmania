@@ -2,9 +2,11 @@
   <div>
     <AppNav />
 
-    <transition name="fade">
-      <router-view></router-view>
-    </transition>
+    <div class="container">
+      <transition name="fade">
+          <router-view></router-view>
+      </transition>
+    </div>
 
     <!-- Preload the elusive icons font -->
     <i class="el el-ok" style="position:absolute;z-index:-1;opacity:0;"></i>

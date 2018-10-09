@@ -45,12 +45,14 @@ export default {
     return new Promise((resolve, reject) => {
       Axios.get(API.session)
       .then((resp) => {
-        if(resp.data.authenticated) {
+        if(resp.data.authenticated)
           commit("login", Transform.user(resp.data.user));
+
+        // The router will trigger before the session has been loaded which
+        // prematurely redirects logged in users to the login page. We can temporarily
+        // disable that until we get a response back from the session API
+        commit("setReady", "session");
         resolve();
-        } else {
-          resolve();
-        }
       })
       .catch((err) => {
         console.error(err);

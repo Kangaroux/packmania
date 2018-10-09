@@ -1,11 +1,14 @@
 .container {
   padding: 0 15px;
-  margin: 0 auto;
 }
 
 .modal-container {
-  margin-top: 50px;
+  margin: 50px auto 0;
   padding: 15px;
   background-color: lighten($col-dark-gray, 7%);
   border-radius: 5px;
+}
+
+.modal-sm {
+  max-width: 330px;
 }

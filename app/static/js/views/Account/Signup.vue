@@ -1,5 +1,5 @@
 <template>
-  <div class="container signup-container">
+  <div class="modal-container signup-container modal-sm">
     <h2>SIGN UP</h2>
 
     <p>
@@ -37,7 +37,7 @@
         type="password"
         />
 
-      <input type="submit" class="form-submit-btn" value="Create Account" />
+      <Button className="btn-blue btn-block" label="Create Account" :submit="true" />
     </Form>
 
     <p class="footer-links">
@@ -53,10 +53,11 @@
 
 <script>
   import Form from "~/components/Form";
+  import Button from "~/components/Button";
   import TextInput from "~/components/TextInput";
 
   export default {
-    components: { Form, TextInput },
+    components: { Form, TextInput, Button },
 
     data() {
       return {

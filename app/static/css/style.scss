@@ -6,6 +6,7 @@
 @import "text";
 @import "util";
 
+@import "components/button";
 @import "components/nav";
 @import "layout/container";
 @import "forms/input";
@@ -13,6 +14,7 @@
 @import "views/login";
 @import "views/signup";
 @import "views/transition";
+@import "views/upload";
 
 // This must come after the other form inputs
 @import "forms/error";

@@ -1,6 +1,9 @@
 <template>
-  <div class="container login-container">
+  <div class="modal-container login-container modal-sm">
     <h2>LOG IN</h2>
+
+    <p v-if="wasRedirected">Please login first.</p>
+
     <Form :formError="formError" @submit="login">
       <TextInput
         type="email"
@@ -21,7 +24,7 @@
         className="remember-me"
         />
 
-      <input type="submit" class="form-submit-btn" value="Log in" />
+      <input type="submit" class="btn btn-blue btn-block" value="Log in" />
     </Form>
 
     <p class="footer-links">
@@ -45,6 +48,8 @@
 
     data() {
       return {
+        wasRedirected: false,
+
         email: "",
         password: "",
         remember_me: false,
@@ -68,6 +73,15 @@
           this.fieldErrors = err.fieldErrors;
         });
       }
+    },
+
+    beforeRouteEnter(to, from, next) {
+      next((vm) => {
+        if(vm.$store.state.wasRedirectedToLogin) {
+          vm.$store.commit("redirectedToLoginReset");
+          vm.wasRedirected = true;
+        }
+      });
     }
   };
 </script>

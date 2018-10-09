@@ -21,8 +21,10 @@ store.dispatch("getCurrentSession")
 .then(() => {
   // If the user isn't logged in but is trying to view a restricted page then
   // send them back to the login
-  if(router.currentRoute.meta.loginRequired && !store.state.loggedIn)
+  if(router.currentRoute.meta.loginRequired && !store.state.loggedIn) {
+    window.store.commit("redirectedToLogin");
     router.push({ name: "login" });
+  }
 
   const $el = document.getElementById("app");
   $el.innerHTML = "<router-view></router-view>";
