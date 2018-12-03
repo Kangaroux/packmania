@@ -1,3 +1,5 @@
+View the project tracker on Trello: https://trello.com/b/55ohMBov/packmania
+
 # Packmania
 Packmania is a community-driven site for sharing and downloading songs and packs for Stepmania.
 
