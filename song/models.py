@@ -81,4 +81,4 @@ class Song(models.Model):
   download_url = models.CharField(max_length=255)
 
   # .mp3 for the song preview
-  preview_url = models.CharField(max_length=255)
+  preview_url = models.CharField(max_length=255, null=True)

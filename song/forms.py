@@ -3,7 +3,13 @@ from zipfile import BadZipFile, ZipFile
 from django import forms
 from django.conf import settings
 
-from lib.parser.zip import contains_file_ext, get_songs, get_uncompressed_size, ZipParseException
+from lib.parser.zip import (
+  contains_file_ext,
+  get_songs,
+  get_uncompressed_size,
+  zip_as_tree,
+  ZipParseException
+)
 
 
 class UploadSongForm(forms.Form):
@@ -39,8 +45,8 @@ class UploadSongForm(forms.Form):
           tree = zip_as_tree(f)
 
           if get_uncompressed_size(tree) >= settings.MAX_UNCOMPRESSED_ZIP_SIZE:
-            raise forms.ValidationError("The zip cannot be larger than %s."
-              % TEXT_MAX_UNCOMPRESSED_ZIP_SIZE)
+            raise forms.ValidationError("The zip cannot be larger than %s when unzipped."
+              % settings.TEXT_MAX_UNCOMPRESSED_ZIP_SIZE)
           elif contains_file_ext(tree, (".exe", ".zip", ".rar", ".7z")):
             # This doesn't have to be a complete list -- this is mostly just a
             # means of protecting us and the user from zip bombs
@@ -49,7 +55,7 @@ class UploadSongForm(forms.Form):
             try:
               self.is_pack, self.pack_name, self.sm_files = get_songs(tree)
             except ZipParseException as e:
-              raise forms.ValidationError("There was an error with the file structure (%s)." % e)
+              raise forms.ValidationError(e)
       except BadZipFile:
         raise forms.ValidationError("File must be a valid ZIP.")
 

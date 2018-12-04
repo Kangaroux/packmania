@@ -30,7 +30,7 @@ class TestUploadSong(TestCase):
 
     self.assertEqual(resp.status_code, 200)
 
-  @override_settings(MAX_SONG_SIZE_UNZIPPED=1024, MAX_SONG_SIZE_UNZIPPED_TEXT="1KB")
+  @override_settings(MAX_UNCOMPRESSED_ZIP_SIZE=1024, TEXT_MAX_UNCOMPRESSED_ZIP_SIZE="1KB")
   def test_upload_file_too_big(self):
     self.client.force_login(self.u)
 
@@ -38,43 +38,7 @@ class TestUploadSong(TestCase):
       resp = self.client.post(reverse("api:songs"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "File cannot be larger than 1KB when unzipped.")
-
-  def test_upload_not_zip(self):
-    self.client.force_login(self.u)
-
-    with open(os.path.join(settings.TEST_DATA_DIR, "ABXY", "abxy.sm"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
-
-    self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "File must be a zip containing a single song folder.")
-
-  def test_upload_no_folder(self):
-    self.client.force_login(self.u)
-
-    with open(os.path.join(settings.TEST_DATA_DIR, "invalid_song_structure.zip"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
-
-    self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "Files should be contained in a single root folder.")
-
-  def test_upload_multiple_folders(self):
-    self.client.force_login(self.u)
-
-    with open(os.path.join(settings.TEST_DATA_DIR, "invalid_song_structure_3.zip"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
-
-    self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "Files should be contained in a single root folder.")
-
-  def test_upload_no_ext(self):
-    self.client.force_login(self.u)
-
-    with open(os.path.join(settings.TEST_DATA_DIR, "invalid_song_structure_4.zip"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
-
-    self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "Invalid file found: folder1/noextension")
+    self.assertEqual(resp.json()["fields"]["file"], "The zip cannot be larger than 1KB when unzipped.")
 
   def test_upload_empty(self):
     self.client.force_login(self.u)
@@ -83,7 +47,7 @@ class TestUploadSong(TestCase):
       resp = self.client.post(reverse("api:songs"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "Zip archive is empty.")
+    self.assertEqual(resp.json()["fields"]["file"], "The zip cannot be empty.")
 
   def test_upload_invalid_file(self):
     self.client.force_login(self.u)
@@ -92,7 +56,7 @@ class TestUploadSong(TestCase):
       resp = self.client.post(reverse("api:songs"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "Invalid file found: folder1/invalid.zip")
+    self.assertEqual(resp.json()["fields"]["file"], "The zip cannot contain executables or other archives.")
 
   def test_upload_missing_files(self):
     self.client.force_login(self.u)

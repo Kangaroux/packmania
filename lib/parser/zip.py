@@ -1,6 +1,10 @@
 from zipfile import ZipFile, ZipInfo
 
 
+class ZipParseException(Exception):
+  pass
+
+
 def zip_as_tree(zip_file):
   """ Returns a dictionary tree of the files and directories in the zip """
   tree = {}
@@ -59,15 +63,15 @@ def get_single_song(tree):
     v = tree[k]
 
     if isinstance(v, dict):
-      raise Exception("Songs cannot contain a subfolder")
+      raise ZipParseException("Songs cannot contain a subfolder.")
     elif k.endswith(".sm"):
       if sm_file:
-        raise Exception("Songs must only have one .sm file")
+        raise ZipParseException("Songs must only have one .sm file.")
 
       sm_file = v
 
   if not sm_file:
-    raise Exception("Songs must have a .sm file")
+    raise ZipParseException("Songs must have a .sm file.")
 
   return sm_file
 
@@ -99,6 +103,9 @@ def get_songs(tree):
 
   # Looks like a song with no root folders
   if len(root_folders) == 0:
+    if num_root_files == 0:
+      raise ZipParseException("The zip cannot be empty.")
+
     sm_files.append(get_single_song(tree))
   elif len(root_folders) == 1:
     folder = list(root_folders.values())[0]
@@ -108,7 +115,7 @@ def get_songs(tree):
       try:
         sm_files.append(get_single_song(folder))
       except:
-        raise Exception("Unexpected files found at root of zip")
+        raise ZipParseException("Unexpected files found at root of zip.")
     else:
       is_pack = True
       pack_name = list(root_folders.keys())[0]
