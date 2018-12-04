@@ -65,4 +65,4 @@ class TestUploadSong(TestCase):
       resp = self.client.post(reverse("api:songs"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "Zip archive needs to contain at least an audio and step file.")
+    self.assertEqual(resp.json()["fields"]["file"], "Songs must have a .sm file.")

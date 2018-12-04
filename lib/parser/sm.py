@@ -148,12 +148,17 @@ class SMParser:
     col = 0
     comment = False
 
+    if isinstance(s, bytes):
+      s = s.decode("utf-8")
+
     # .sm files use the format: #<TAG_NAME>:[tag_value];
     for i in range(len(s)):
       c = s[i]
       col += 1
 
-      if c == "\n":
+      if c == "\r":
+        continue
+      elif c == "\n":
         row += 1
         col = 0
         comment = False

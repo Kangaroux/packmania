@@ -117,13 +117,21 @@ def get_songs(tree):
       except:
         raise ZipParseException("Unexpected files found at root of zip.")
     else:
-      is_pack = True
-      pack_name = list(root_folders.keys())[0]
-
+      # Check if there are more folders inside. If not then this is a zip with
+      # a single song contained within a root folder
       for f in folder:
-        # Packs can contain files such as images or READMEs
         if isinstance(folder[f], dict):
-          sm_files.append(get_single_song(folder[f]))
+          is_pack = True
+          pack_name = list(root_folders.keys())[0]
+          break
+
+      if is_pack:
+        for f in folder:
+          # Packs can contain files such as images or READMEs
+          if isinstance(folder[f], dict):
+            sm_files.append(get_single_song(folder[f]))
+      else:
+        sm_files.append(get_single_song(folder))
   else:
     is_pack = True
 

@@ -1,7 +1,7 @@
+import io
 import logging
 import os
 import os.path
-import shutil
 import uuid
 import zipfile
 
@@ -33,6 +33,13 @@ def copy_public_file(file, dst_path):
     os.makedirs(os.path.dirname(new_uri), exist_ok=True)
 
     with open(new_uri, "wb") as dst:
+      # Because we're accepting a file object as an argument we don't know how
+      # long it's been open, so try resetting it back to the beginning of the file
+      try:
+        file.seek(0)
+      except io.UnsupportedOperation:
+        pass
+
       while True:
         # Copy the file over 1MB at a time
         chunk = file.read(2**20)
@@ -84,9 +91,11 @@ def handle_song_upload(user, uploaded_file, step_files):
           "or an unsupported format." % sf.filename)
 
     # Look up the assets for each file
-    for sf in parsed_step_files:
+    for i in range(len(step_files)):
+      sf = step_files[i]
+      parser = parsed_step_files[i]
       base_path = sf.filename.rsplit("/", 1)[0]
-      audio_path = "/".join(base_path, parser.song.file_name)
+      audio_path = "/".join([ base_path, parser.song.file_name ])
       audio_file = get_file_from_zip(zip_file, audio_path)
 
       # Audio file doesn't exist
@@ -98,7 +107,7 @@ def handle_song_upload(user, uploaded_file, step_files):
 
       # Get the banner
       if parser.display.banner:
-        banner_file = get_file_from_zip(zip_file, "/".join(base_path, parser.display.banner))
+        banner_file = get_file_from_zip(zip_file, "/".join([ base_path, parser.display.banner ]))
 
         # Doesn't exist, ignore
         if not banner_file:
