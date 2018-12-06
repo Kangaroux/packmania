@@ -18,7 +18,7 @@ class TestUploadSong(TestCase):
 
   def test_not_logged_in(self):
     with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
+      resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 401)
 
@@ -26,7 +26,7 @@ class TestUploadSong(TestCase):
     self.client.force_login(self.u)
 
     with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
+      resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 200)
 
@@ -35,7 +35,7 @@ class TestUploadSong(TestCase):
     self.client.force_login(self.u)
 
     with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
+      resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
     self.assertEqual(resp.json()["fields"]["file"], "The zip cannot be larger than 1KB when unzipped.")
@@ -44,7 +44,7 @@ class TestUploadSong(TestCase):
     self.client.force_login(self.u)
 
     with open(os.path.join(settings.TEST_DATA_DIR, "invalid_song_structure_5.zip"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
+      resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
     self.assertEqual(resp.json()["fields"]["file"], "The zip cannot be empty.")
@@ -53,7 +53,7 @@ class TestUploadSong(TestCase):
     self.client.force_login(self.u)
 
     with open(os.path.join(settings.TEST_DATA_DIR, "invalid_song_structure_6.zip"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
+      resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
     self.assertEqual(resp.json()["fields"]["file"], "The zip cannot contain executables or other archives.")
@@ -62,7 +62,7 @@ class TestUploadSong(TestCase):
     self.client.force_login(self.u)
 
     with open(os.path.join(settings.TEST_DATA_DIR, "invalid_song_structure_7.zip"), "rb") as f:
-      resp = self.client.post(reverse("api:songs"), { "file": f })
+      resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
     self.assertEqual(resp.json()["fields"]["file"], "Songs must have a .sm file.")

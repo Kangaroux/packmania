@@ -12,7 +12,7 @@ from lib.parser.zip import (
 )
 
 
-class UploadSongForm(forms.Form):
+class UploadForm(forms.Form):
   file = forms.FileField(max_length=settings.MAX_ZIP_SIZE, error_messages={
     "max_length": "File cannot be larger than %s." % settings.TEXT_MAX_ZIP_SIZE
   })
