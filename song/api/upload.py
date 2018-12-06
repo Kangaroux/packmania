@@ -1,5 +1,6 @@
 from django.contrib.auth import login
 
+from .song import SongListAPI
 from ..forms import UploadForm
 from lib.api import APIView
 from lib.upload import handle_song_upload
@@ -9,7 +10,10 @@ class UploadAPI(APIView):
   """ API for uploading songs/packs """
 
   def post(self, request, format=None):
-    """ Accepts a zip file from the user that can be a song or a pack """
+    """ Accepts a zip file from the user that can be a song or a pack. If the upload
+    was successful then returns the songs that were uploaded in the same format as
+    calling GET /api/songs/
+    """
     if not request.user.is_authenticated:
       return self.not_logged_in()
 
@@ -20,4 +24,4 @@ class UploadAPI(APIView):
 
     songs = handle_song_upload(request.user, request.FILES["file"], form.sm_files)
 
-    return self.ok()
+    return self.ok(SongListAPI.serialize_songs(songs))

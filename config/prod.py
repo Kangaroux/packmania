@@ -1,4 +1,4 @@
-import os
+import os.environ
 from .settings import *
 
 

@@ -1,9 +1,11 @@
+import json
 import os
 import unittest
 
 from django.conf import settings
 from django.shortcuts import reverse
 from django.test import override_settings, TestCase
+from rest_framework.renderers import JSONRenderer
 
 from song.models import Song
 from song.serializers import SongSerializer
@@ -29,6 +31,8 @@ class TestUploadSong(TestCase):
       resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 200)
+    self.assertEqual(len(resp.json()["results"]), 1)
+    self.assertEqual(resp.json()["results"], SongSerializer(Song.objects.all(), many=True).data)
 
   @override_settings(MAX_UNCOMPRESSED_ZIP_SIZE=1024, TEXT_MAX_UNCOMPRESSED_ZIP_SIZE="1KB")
   def test_upload_file_too_big(self):

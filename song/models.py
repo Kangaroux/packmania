@@ -68,7 +68,7 @@ class Song(models.Model):
 
   # TODO: Allow author to be a string or a foreign key to a user
   author = models.CharField(max_length=100)
-  genre = models.CharField(max_length=50, choices=GENRE_CHOICES, default=GENRE_CHOICES[-1])
+  genre = models.CharField(max_length=50, choices=GENRE_CHOICES, default=GENRE_CHOICES[-1][0])
   subtitle = models.CharField(max_length=100)
   title = models.CharField(max_length=100)
 

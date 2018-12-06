@@ -2,7 +2,6 @@ import io
 import logging
 import os
 import os.path
-import uuid
 import zipfile
 
 from django.conf import settings
@@ -117,7 +116,7 @@ def handle_song_upload(user, uploaded_file, step_files):
       banner_files.append(banner_file)
 
     # Get a unique alphanumeric for the folder name
-    dst_folder = uuid.uuid4().hex
+    dst_folder = util.random_hex_string(16)
     zip_dst = os.path.join(dst_folder, "upload.zip")
     banner_dst = []
 
@@ -131,7 +130,7 @@ def handle_song_upload(user, uploaded_file, step_files):
         continue
 
       with zip_file.open(b) as f:
-        name = os.path.join(dst_folder, "banner%s.%s" % (uuid.uuid4().hex, b.filename.split(".", 1)[1]))
+        name = os.path.join(dst_folder, "banner_%s.%s" % (util.random_hex_string(8), b.filename.split(".", 1)[1]))
         banner_dst.append(name)
         copy_public_file(f, name)
 
