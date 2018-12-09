@@ -2,27 +2,31 @@ class BaseZipError(Exception):
   pass
 
 
+class BadZipError(BaseZipError):
+  """ This is the same as zipfile.BadZipFile """
+
+
 class ZipTooLargeError(BaseZipError):
   """ The uncompressed size of the zip file is too large """
   pass
 
 
-class ZipBadFilesError(BaseZipError):
+class BadFilesError(BaseZipError):
   """ The zip contains disallowed file extensions """
   pass
 
 
-class ZipSubfolderError(BaseZipError):
+class SubfolderError(BaseZipError):
   """ A subfolder was found in a song folder """
   pass
 
 
-class ZipMultipleStepFilesError(BaseZipError):
+class MultipleStepFilesError(BaseZipError):
   """ Multiple step files of the same type were found in a song folder """
   pass
 
 
-class ZipMissingStepFileError(BaseZipError):
+class MissingStepFileError(BaseZipError):
   """ No step file was found in a song folder """
   pass
 
@@ -32,6 +36,6 @@ class ZipEmptyError(BaseZipError):
   pass
 
 
-class ZipUnexpectedRootFilesError(BaseZipError):
+class UnexpectedRootFilesError(BaseZipError):
   """ The zip has unexpected files at the root level """
   pass

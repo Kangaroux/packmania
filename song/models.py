@@ -1,6 +1,6 @@
 from django.db import models
 
-from lib.sm_parser import BPM, ChartInfo
+from lib.step_parser import BPM, ChartInfo
 
 
 CHART_CHOICES = (

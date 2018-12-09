@@ -1,4 +1,6 @@
-from zipfile import ZipFile, ZipInfo
+from zipfile import BadZipFile, ZipFile, ZipInfo
+
+from django.conf import settings
 
 from .exceptions import *
 
@@ -21,7 +23,12 @@ class ZipParser:
     self.uncompressed_size = None
 
   def __enter__(self):
-    self.zf = zip_file.ZipFile(self.file)
+    try:
+      self.zf = zipfile.ZipFile(self.file)
+    except BadZipFile:
+      # This is just a replacement for BadZipFile so we don't need to import the
+      # zipfile module when using the parser
+      raise BadZipError("The zip file is invalid and could not be opened.")
 
   def __exit__(self):
     self.zf.close()
@@ -33,12 +40,14 @@ class ZipParser:
     self.uncompressed_size = self._get_uncompressed_size(self.tree)
 
     if max_size and self.uncompressed_size < max_size:
-      raise ZipTooLargeError
+      raise ZipTooLargeError("The zip file is too big when uncompressed (cannot be larger than %s)."
+        % settings.TEXT_MAX_UNCOMPRESSED_ZIP_SIZE)
 
     self.disallowed_files = self._get_files_with_ext(self.tree, disallowed_files)
 
     if self.disallowed_files:
-      raise ZipBadFilesError
+      raise BadFilesError("The zip file contains blocked file types (cannot contain: %s)."
+        % ", ".join(settings.DISALLOWED_FILE_EXTENSIONS))
 
     self.is_pack, self.pack_name, self.step_files = self._find_all_step_files(self.tree)
 
@@ -107,15 +116,15 @@ class ZipParser:
       v = subtree[k]
 
       if isinstance(v, dict):
-        raise ZipSubfolderError
+        raise SubfolderError("Found an unexpected subfolder in a song folder.")
       elif k.endswith(".sm"):
         if sm_file:
-          raise ZipMultipleStepFilesError
+          raise MultipleStepFilesError("Found multiple step files of the same type in a song folder.")
 
         sm_file = v
 
     if not sm_file:
-      raise ZipMissingStepFileError
+      raise MissingStepFileError("A song folder is missing a valid step file.")
 
     return sm_file
 
@@ -148,7 +157,7 @@ class ZipParser:
     # Looks like a song with no root folders
     if len(root_folders) == 0:
       if num_root_files == 0:
-        raise ZipEmptyError
+        raise ZipEmptyError("The zip file cannot be empty.")
 
       step_files.append(get_single_song(tree))
     elif len(root_folders) == 1:
@@ -159,7 +168,7 @@ class ZipParser:
         try:
           step_files.append(get_single_song(folder))
         except:
-          raise ZipUnexpectedRootFilesError
+          raise UnexpectedRootFilesError("Unexpected files were found at the root level.")
       else:
         # Check if there are more folders inside. If not then this is a zip with
         # a single song contained within a root folder

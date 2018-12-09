@@ -5,3 +5,6 @@ TEXT_MAX_ZIP_SIZE = "3GB"
 # 10GB
 MAX_UNCOMPRESSED_ZIP_SIZE = 10 * 1024 * 1024 * 1024
 TEXT_MAX_UNCOMPRESSED_ZIP_SIZE = "10GB"
+
+# File extensions not allowed in user uploaded zips
+DISALLOWED_FILE_EXTENSIONS = (".exe", ".zip")

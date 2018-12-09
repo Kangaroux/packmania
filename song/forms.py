@@ -1,15 +1,12 @@
-from zipfile import BadZipFile, ZipFile
+import logging
 
 from django import forms
 from django.conf import settings
 
-from lib.song_parsers.zip import (
-  contains_file_ext,
-  get_songs,
-  get_uncompressed_size,
-  zip_as_tree,
-  ZipParseException
-)
+from lib.zip_parser import BaseZipError, ZipParser
+
+
+logger = logging.getLogger(__file__)
 
 
 class UploadForm(forms.Form):
@@ -20,43 +17,22 @@ class UploadForm(forms.Form):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
 
-    is_pack = False
-    pack_name = None
-    sm_files = []
+    zip_parser = None
 
   def clean_file(self):
-    """ Inspects the zip to verify that:
+    """ Inspects the zip file to see if it's valid """
+    zip_file = self.cleaned_data.get("file")
 
-    - It's a valid zip file
-    - It won't be too big once decompressed
-    - It doesn't contain any potentially malicious files
-    - The folder structure of the song/pack is valid
+    if zip_file:
+      self.zip_parser = ZipParser(zip_file)
 
-    Also extracts some data from the zip file:
-
-    - Is it a pack? If yes, what is its name?
-    - What are the .sm files?
-    """
-    data = self.cleaned_data.get("file")
-
-    if data:
       try:
-        with ZipFile(data, "r") as f:
-          tree = zip_as_tree(f)
+        with self.zip_parser:
+          self.zip_parser.inspect(settings.MAX_UNCOMPRESSED_ZIP_SIZE, settings.DISALLOWED_FILE_EXTENSIONS)
+      except BaseZipError as e:
+        raise forms.ValidationError(e)
+      except Exception as e:
+        logger.exception("Error when trying to inspect zip file")
+        raise forms.ValidationError("An unexpected error occurred when inspecting the zip file.")
 
-          if get_uncompressed_size(tree) >= settings.MAX_UNCOMPRESSED_ZIP_SIZE:
-            raise forms.ValidationError("The zip cannot be larger than %s when unzipped."
-              % settings.TEXT_MAX_UNCOMPRESSED_ZIP_SIZE)
-          elif contains_file_ext(tree, (".exe", ".zip", ".rar", ".7z")):
-            # This doesn't have to be a complete list -- this is mostly just a
-            # means of protecting us and the user from zip bombs
-            raise forms.ValidationError("The zip cannot contain executables or other archives.")
-          else:
-            try:
-              self.is_pack, self.pack_name, self.sm_files = get_songs(tree)
-            except ZipParseException as e:
-              raise forms.ValidationError(e)
-      except BadZipFile:
-        raise forms.ValidationError("File must be a valid ZIP.")
-
-    return data
+    return zip_file
