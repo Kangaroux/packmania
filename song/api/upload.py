@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from .song import SongListAPI
 from ..forms import UploadForm
 from lib.api import APIView
-from lib.upload import handle_song_upload
+from lib.upload import extract_and_add_songs
 
 
 class UploadAPI(APIView):
@@ -22,6 +22,6 @@ class UploadAPI(APIView):
     if not form.is_valid():
       return self.form_error(form)
 
-    songs = handle_song_upload(request.user, request.FILES["file"], form.sm_files)
+    songs = extract_and_add_songs(request.user, request.FILES["file"], form.sm_files)
 
     return self.ok(SongListAPI.serialize_songs(songs))

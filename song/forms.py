@@ -3,7 +3,7 @@ from zipfile import BadZipFile, ZipFile
 from django import forms
 from django.conf import settings
 
-from lib.parser.zip import (
+from lib.song_parsers.zip import (
   contains_file_ext,
   get_songs,
   get_uncompressed_size,

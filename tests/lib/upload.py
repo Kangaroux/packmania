@@ -8,8 +8,8 @@ from django.conf import settings
 from django.core.files.base import File
 from django.test import TestCase
 
-from lib.parser.sm import SMParser
-from lib.parser.zip import get_songs, zip_as_tree
+from lib.sm_parser import SMParser
+from lib.song_parsers.zip import get_songs, zip_as_tree
 from lib.upload import *
 from user.models import User
 
@@ -69,13 +69,13 @@ class TestSongUpload(TestCase):
     self.assertTrue(song.download_url.startswith(settings.MEDIA_ROOT))
     # self.assertTrue(song.preview_url.startswith(settings.MEDIA_ROOT))
 
-  def test_handle_song_upload(self):
+  def test_extract_and_add_songs(self):
     with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:
       with zipfile.ZipFile(f) as zf:
         tree = zip_as_tree(zf)
         _, _, songs = get_songs(tree)
 
-      song = handle_song_upload(self.u, f, songs)
+      song = extract_and_add_songs(self.u, f, songs)
 
     self.assertEqual(len(song), 1)
     self.assertEqual(song[0].uploader, self.u)
