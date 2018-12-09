@@ -28,7 +28,7 @@ class UploadForm(forms.Form):
 
       try:
         with self.zip_parser:
-          self.zip_parser.inspect(settings.MAX_UNCOMPRESSED_ZIP_SIZE, settings.DISALLOWED_FILE_EXTENSIONS)
+          self.zip_parser.inspect(settings.MAX_UNCOMPRESSED_ZIP_SIZE, settings.DISALLOWED_FILE_TYPES)
       except BaseZipError as e:
         raise forms.ValidationError(e)
       except Exception as e:

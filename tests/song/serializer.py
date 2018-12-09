@@ -3,7 +3,7 @@ import re
 from django.shortcuts import reverse
 from django.test import TestCase
 
-from lib.sm_parser import BPM
+from lib.step_parser import BPM
 from song.models import Song
 from song.serializers import SongSerializer
 from user.models import User

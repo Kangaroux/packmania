@@ -22,6 +22,7 @@ class UploadAPI(APIView):
     if not form.is_valid():
       return self.form_error(form)
 
-    songs = extract_and_add_songs(request.user, request.FILES["file"], form.sm_files)
+    with form.zip_parser:
+      songs = extract_and_add_songs(request.user, form.zip_parser)
 
     return self.ok(SongListAPI.serialize_songs(songs))

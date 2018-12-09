@@ -42,7 +42,8 @@ class TestUploadSong(TestCase):
       resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "The zip cannot be larger than 1KB when unzipped.")
+    self.assertEqual(resp.json()["fields"]["file"], "The zip cannot be larger than %s when unzipped."
+      % settings.TEXT_MAX_UNCOMPRESSED_ZIP_SIZE)
 
   def test_upload_empty(self):
     self.client.force_login(self.u)
@@ -51,7 +52,7 @@ class TestUploadSong(TestCase):
       resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "The zip cannot be empty.")
+    self.assertEqual(resp.json()["fields"]["file"], "The zip file cannot be empty.")
 
   def test_upload_invalid_file(self):
     self.client.force_login(self.u)
@@ -60,7 +61,8 @@ class TestUploadSong(TestCase):
       resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "The zip cannot contain executables or other archives.")
+    self.assertEqual(resp.json()["fields"]["file"], "The zip file contains blocked file types (such as: %s)."
+      % ", ".join(settings.DISALLOWED_FILE_TYPES))
 
   def test_upload_missing_files(self):
     self.client.force_login(self.u)
@@ -69,4 +71,4 @@ class TestUploadSong(TestCase):
       resp = self.client.post(reverse("api:upload"), { "file": f })
 
     self.assertEqual(resp.status_code, 400)
-    self.assertEqual(resp.json()["fields"]["file"], "Songs must have a .sm file.")
+    self.assertEqual(resp.json()["fields"]["file"], "Every song must have a valid step file.")

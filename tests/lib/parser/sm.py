@@ -3,7 +3,8 @@ import os.path
 from django.conf import settings
 from django.test import TestCase
 
-from lib.sm_parser import BPM, ChartInfo, SMParser
+from lib.step_parser import BPM, ChartInfo
+from lib.step_parser.sm import SMParser
 
 
 ABXY_FILE = os.path.join(settings.TEST_DATA_DIR, "ABXY", "abxy.sm")

@@ -1,4 +1,4 @@
-from zipfile import BadZipFile, ZipFile, ZipInfo
+import zipfile
 
 from django.conf import settings
 
@@ -25,12 +25,12 @@ class ZipParser:
   def __enter__(self):
     try:
       self.zf = zipfile.ZipFile(self.file)
-    except BadZipFile:
+    except zipfile.BadZipFile:
       # This is just a replacement for BadZipFile so we don't need to import the
       # zipfile module when using the parser
       raise BadZipError("The zip file is invalid and could not be opened.")
 
-  def __exit__(self):
+  def __exit__(self, *args, **kwargs):
     self.zf.close()
     self.zf = None
 
@@ -39,15 +39,15 @@ class ZipParser:
     self.tree = self._build_tree()
     self.uncompressed_size = self._get_uncompressed_size(self.tree)
 
-    if max_size and self.uncompressed_size < max_size:
-      raise ZipTooLargeError("The zip file is too big when uncompressed (cannot be larger than %s)."
+    if max_size and self.uncompressed_size > max_size:
+      raise ZipTooLargeError("The zip cannot be larger than %s when unzipped."
         % settings.TEXT_MAX_UNCOMPRESSED_ZIP_SIZE)
 
     self.disallowed_files = self._get_files_with_ext(self.tree, disallowed_files)
 
     if self.disallowed_files:
-      raise BadFilesError("The zip file contains blocked file types (cannot contain: %s)."
-        % ", ".join(settings.DISALLOWED_FILE_EXTENSIONS))
+      raise BadFilesError("The zip file contains blocked file types (such as: %s)."
+        % ", ".join(settings.DISALLOWED_FILE_TYPES))
 
     self.is_pack, self.pack_name, self.step_files = self._find_all_step_files(self.tree)
 
@@ -80,7 +80,7 @@ class ZipParser:
       v = tree[k]
 
       if isinstance(v, dict):
-        size += get_uncompressed_size(v)
+        size += self._get_uncompressed_size(v)
       else:
         size += v.file_size
 
@@ -96,11 +96,11 @@ class ZipParser:
     for k in tree:
       v = tree[k]
 
-      if isinstance(v, dict)
+      if isinstance(v, dict):
         self._get_files_with_ext(v, ext, files)
 
       for e in ext:
-        if v.endswith(e):
+        if k.endswith(e):
           files.append(v)
           break
 
@@ -124,7 +124,7 @@ class ZipParser:
         sm_file = v
 
     if not sm_file:
-      raise MissingStepFileError("A song folder is missing a valid step file.")
+      raise MissingStepFileError("Every song must have a valid step file.")
 
     return sm_file
 
@@ -159,14 +159,14 @@ class ZipParser:
       if num_root_files == 0:
         raise ZipEmptyError("The zip file cannot be empty.")
 
-      step_files.append(get_single_song(tree))
+      step_files.append(self._find_step_file(tree))
     elif len(root_folders) == 1:
       folder = list(root_folders.values())[0]
 
       # Possibly a pack with one song but most likely an error
       if num_root_files > 0:
         try:
-          step_files.append(get_single_song(folder))
+          step_files.append(self._find_step_file(folder))
         except:
           raise UnexpectedRootFilesError("Unexpected files were found at the root level.")
       else:
@@ -182,14 +182,14 @@ class ZipParser:
           for f in folder:
             # Packs can contain files such as images or READMEs
             if isinstance(folder[f], dict):
-              step_files.append(get_single_song(folder[f]))
+              step_files.append(self._find_step_file(folder[f]))
         else:
-          step_files.append(get_single_song(folder))
+          step_files.append(self._find_step_file(folder))
     else:
       is_pack = True
 
       # Multiple folders means this should be a pack
       for f in root_folders:
-        step_files.append(get_single_song(root_folders[f]))
+        step_files.append(self._find_step_file(root_folders[f]))
 
     return ( is_pack, pack_name, step_files )

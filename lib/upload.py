@@ -2,13 +2,12 @@ import io
 import logging
 import os
 import os.path
-import zipfile
 
 from django.conf import settings
 from django.core.files.base import File
 
 from lib import util
-from lib.sm_parser import SMParser
+from lib.step_parser.sm import SMParser
 from song.models import Chart, Song
 
 
@@ -17,18 +16,6 @@ logger = logging.getLogger(__name__)
 
 class UploadError(Exception):
   pass
-
-
-def load_songs_from_file(user, file):
-  """ Opens the zip at the given path and inserts the songs into the database
-  with the given user as the uploader
-  """
-  with open(file) as f:
-    with zipfile.ZipFile(f) as zf:
-      is_pack, pack_name, sm_files = get_songs(zf)
-      songs = extract_and_add_songs(user, zf, sm_files)
-
-  return is_pack, pack_name, songs
 
 
 def copy_public_file(file, dst_path):
@@ -73,7 +60,7 @@ def get_file_from_zip(zip_file, path):
     return None
 
 
-def extract_and_add_songs(user, uploaded_file, step_files):
+def extract_and_add_songs(user, zip_parser):
   """ Reads the .sm files in the zip to extract the audio and banner, as well as
   create songs and charts in the database.
 
@@ -86,13 +73,13 @@ def extract_and_add_songs(user, uploaded_file, step_files):
   banner_files = []
 
   # Parse the step files to verify that the file is valid
-  for sf in step_files:
+  for sf in zip_parser.step_files:
     parser = SMParser()
     parsed_step_files.append(parser)
 
     try:
       # Load the step file into memory and parse it
-      with uploaded_file.open(sf) as f:
+      with zip_parser.zf.open(sf) as f:
         parser.load_from_string(f.read())
     except Exception as e:
       logger.exception("Error while parsing step file")
@@ -100,12 +87,12 @@ def extract_and_add_songs(user, uploaded_file, step_files):
         "or an unsupported format." % sf.filename)
 
   # Look up the assets for each file
-  for i in range(len(step_files)):
-    sf = step_files[i]
+  for i in range(len(zip_parser.step_files)):
+    sf = zip_parser.step_files[i]
     parser = parsed_step_files[i]
     base_path = sf.filename.rsplit("/", 1)[0]
     audio_path = "/".join([ base_path, parser.song.file_name ])
-    audio_file = get_file_from_zip(uploaded_file, audio_path)
+    audio_file = get_file_from_zip(zip_parser.zf, audio_path)
 
     # Audio file doesn't exist
     if not audio_file:
@@ -116,7 +103,7 @@ def extract_and_add_songs(user, uploaded_file, step_files):
 
     # Get the banner
     if parser.display.banner:
-      banner_file = get_file_from_zip(uploaded_file, "/".join([ base_path, parser.display.banner ]))
+      banner_file = get_file_from_zip(zip_parser.zf, "/".join([ base_path, parser.display.banner ]))
 
       # Doesn't exist, ignore
       if not banner_file:
@@ -131,7 +118,7 @@ def extract_and_add_songs(user, uploaded_file, step_files):
   banner_dst = []
 
   # Copy the zip file
-  copy_public_file(uploaded_file, zip_dst)
+  copy_public_file(zip_parser.file, zip_dst)
 
   # Copy the banners
   for b in banner_files:
@@ -139,7 +126,7 @@ def extract_and_add_songs(user, uploaded_file, step_files):
       banner_dst.append(None)
       continue
 
-    with uploaded_file.open(b) as f:
+    with zip_parser.zf.open(b) as f:
       name = os.path.join(dst_folder, "banner_%s.%s" % (util.random_hex_string(8), b.filename.split(".", 1)[1]))
       banner_dst.append(name)
       copy_public_file(f, name)
