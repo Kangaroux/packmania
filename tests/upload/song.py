@@ -17,7 +17,6 @@ class TestUploadSong(TestCase):
   def setUpTestData(cls):
     cls.u = User.objects.create_user("test_user", "test@test.com")
 
-
   def test_not_logged_in(self):
     with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:
       resp = self.client.post(reverse("api:upload"), { "file": f })
