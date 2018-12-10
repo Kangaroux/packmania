@@ -17,4 +17,5 @@ class SongSerializer(serializers.ModelSerializer):
     model = Song
     fields = "__all__"
 
+  genre = serializers.CharField(source="get_genre_display")
   charts = ChartSerializer(many=True, read_only=True)

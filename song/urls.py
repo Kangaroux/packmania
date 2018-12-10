@@ -6,4 +6,6 @@ from . import api
 urlpatterns = [
   path("songs/", api.SongListAPI.as_view(), name="songs"),
   path("songs/<int:pk>", api.SongDetailAPI.as_view(), name="songs"),
+
+  path("upload/", api.UploadAPI.as_view(), name="upload"),
 ]

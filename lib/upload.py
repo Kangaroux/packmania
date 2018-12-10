@@ -1,49 +1,51 @@
+import io
 import logging
 import os
 import os.path
-import shutil
-import uuid
-import zipfile
 
 from django.conf import settings
 from django.core.files.base import File
 
 from lib import util
-from lib.parser.sm import SMParser
+from lib.step_parser.sm import SMParser
 from song.models import Chart, Song
 
 
 logger = logging.getLogger(__name__)
 
 
-def copy_public_file(file, dst="", new_name=None):
-  """ Copies `file` to `dst` where `dst` is a publicly viewable directory for hosting
-  user files. On dev this is MEDIA_ROOT, and on prod this is an S3 bucket. Returns the
-  full uploaded URI of the file.
+class UploadError(Exception):
+  pass
 
-  `file` should be either a file path or a django File object
+
+def copy_public_file(file, dst_path):
+  """ Writes a file to a publically accessible folder
+
+  For development this copies the file to a public folder, on production this
+  copies the file to S3
   """
   new_uri = ""
 
-  if isinstance(file, File):
-    file_name = file.name
-  else:
-    file_name = os.path.basename(file)
-
   if settings.DEV:
-    new_uri = os.path.join(settings.MEDIA_ROOT, dst, new_name if new_name else file_name)
-
+    new_uri = os.path.join(settings.MEDIA_ROOT, dst_path)
     os.makedirs(os.path.dirname(new_uri), exist_ok=True)
 
-    if isinstance(file, File):
-      with open(new_uri, "wb") as dst_file:
-        for chunk in file.chunks():
-          try:
-            dst_file.write(chunk)
-          except TypeError:
-            dst_file.write(chunk.encode("utf-8"))
-    else:
-      shutil.copyfile(file, new_uri)
+    with open(new_uri, "wb") as dst:
+      # Because we're accepting a file object as an argument we don't know how
+      # long it's been open, so try resetting it back to the beginning of the file
+      try:
+        file.seek(0)
+      except io.UnsupportedOperation:
+        pass
+
+      while True:
+        # Copy the file over 1MB at a time
+        chunk = file.read(2**20)
+        dst.write(chunk)
+
+        # EOF
+        if len(chunk) < 2**20:
+          break
   else:
     # TODO
     pass
@@ -51,70 +53,100 @@ def copy_public_file(file, dst="", new_name=None):
   return new_uri
 
 
-def handle_song_upload(user, zip_file):
-  """ Creates a new song and chart(s) from a user uploaded zip file. `zip_file` must be
-  an instance of django.core.files.base.File
-  """
-  zf = zipfile.ZipFile(zip_file)
-  tmp_dir = os.path.join(settings.TMP_DIR, str(uuid.uuid1()))
-  song = None
-
-  # Create a temp dir we can extract the files to
-  os.makedirs(tmp_dir)
-
-  # Extract the step file
-  step_file = zf.extract(
-    util.first(zf.namelist(), lambda x: x.endswith(".sm"))[0],
-    tmp_dir
-  )
-
+def get_file_from_zip(zip_file, path):
   try:
-    # Parse the step file
+    return zip_file.getinfo(path)
+  except KeyError:
+    return None
+
+
+def extract_and_add_songs(user, zip_parser):
+  """ Reads the .sm files in the zip to extract the audio and banner, as well as
+  create songs and charts in the database.
+
+  Returns a list of Songs inserted into the database, or raises an UploadError
+  if something went wrong
+  """
+  songs = []
+  parsed_step_files = []
+  audio_files = []
+  banner_files = []
+
+  # Parse the step files to verify that the file is valid
+  for sf in zip_parser.step_files:
     parser = SMParser()
-    parser.load_file(step_file)
+    parsed_step_files.append(parser)
 
-    # Extract the audio file
-    audio_file = zf.extract(
-      util.first(zf.namelist(), lambda x: os.path.basename(x) == parser.song.file_name)[0],
-      tmp_dir
-    )
+    try:
+      # Load the step file into memory and parse it
+      with zip_parser.zf.open(sf) as f:
+        parser.load_from_string(f.read())
+    except Exception as e:
+      logger.exception("Error while parsing step file")
+      raise UploadError("The file '%s' could not be parsed, it may be corrupted "
+        "or an unsupported format." % sf.filename)
 
-    # Extract the banner file (if it exists)
+  # Look up the assets for each file
+  for i in range(len(zip_parser.step_files)):
+    sf = zip_parser.step_files[i]
+    parser = parsed_step_files[i]
+    base_path = sf.filename.rsplit("/", 1)[0]
+    audio_path = "/".join([ base_path, parser.song.file_name ])
+    audio_file = get_file_from_zip(zip_parser.zf, audio_path)
+
+    # Audio file doesn't exist
+    if not audio_file:
+      raise UploadError("The audio file '%s' for song '%s' does not exist."
+        % (parser.song.file_name, sf.filename))
+
+    banner_file = None
+
+    # Get the banner
     if parser.display.banner:
-      banner_file = zf.extract(
-        util.first(zf.namelist(), lambda x: os.path.basename(x) == parser.display.banner)[0],
-        tmp_dir
-      )
-    else:
-      banner_file = None
+      banner_file = get_file_from_zip(zip_parser.zf, "/".join([ base_path, parser.display.banner ]))
 
-    create_preview(parser.song.preview_start, parser.song.preview_length, audio_file)
-    song = create_song(user, parser, zip_file, audio_file, banner_file)
-  except Exception as e:
-    logger.exception("Exception occurred while processing uploaded song")
-  finally:
-    shutil.rmtree(tmp_dir)
+      # Doesn't exist, ignore
+      if not banner_file:
+        logger.warning("Banner '%s' does not exist, ignoring..." % banner_file)
 
-  return song
+    audio_files.append(audio_file)
+    banner_files.append(banner_file)
+
+  # Get a unique alphanumeric for the folder name
+  dst_folder = util.random_hex_string(16)
+  zip_dst = os.path.join(dst_folder, "upload.zip")
+  banner_dst = []
+
+  # Copy the zip file
+  copy_public_file(zip_parser.file, zip_dst)
+
+  # Copy the banners
+  for b in banner_files:
+    if not b:
+      banner_dst.append(None)
+      continue
+
+    with zip_parser.zf.open(b) as f:
+      name = os.path.join(dst_folder, "banner_%s.%s" % (util.random_hex_string(8), b.filename.split(".", 1)[1]))
+      banner_dst.append(name)
+      copy_public_file(f, name)
+
+  # Insert the songs/charts into the database
+  for i in range(len(parsed_step_files)):
+    songs.append(create_song(user, parsed_step_files[i], zip_dst, None, banner_dst[i]))
+
+  return songs
 
 
 def create_preview(start, length, audio_file):
-  """ Trims the audio file down to create a preview version """
+  """ Trims the audio file down to create a preview version.
+  TODO: Use ffmpeg
+  """
   pass
 
 
-def create_song(user, data, zip_file, audio_file, banner_file):
-  dst = str(uuid.uuid1())
-
-  zip_file = copy_public_file(zip_file, dst)
-  audio_file = copy_public_file(audio_file, dst, new_name=util.rename_file(audio_file, "preview"))
-
-  if banner_file:
-    banner_file = copy_public_file(banner_file, dst, new_name=util.rename_file(banner_file, "banner"))
-  else:
-    banner_file = None
-
-  # Create a new Song instance
+def create_song(user, data, zip_path, audio_path, banner_path):
+  """ Creates a new song in the database """
   song = Song.objects.create(
     uploader=user,
     artist=data.display.artist,
@@ -130,9 +162,9 @@ def create_song(user, data, zip_file, audio_file, banner_file):
     min_bpm=data.song.bpm_range[0],
     max_bpm=data.song.bpm_range[1],
 
-    download_url=zip_file,
-    preview_url=audio_file,
-    banner_url=banner_file
+    download_url=zip_path,
+    preview_url=audio_path,
+    banner_url=banner_path
   )
 
   # Bulk insert the charts for the song

@@ -1,6 +1,6 @@
 from django.db import models
 
-from lib.parser.sm import BPM, ChartInfo
+from lib.step_parser import BPM, ChartInfo
 
 
 CHART_CHOICES = (
@@ -68,7 +68,7 @@ class Song(models.Model):
 
   # TODO: Allow author to be a string or a foreign key to a user
   author = models.CharField(max_length=100)
-  genre = models.CharField(max_length=50, choices=GENRE_CHOICES, default=GENRE_CHOICES[-1])
+  genre = models.CharField(max_length=50, choices=GENRE_CHOICES, default=GENRE_CHOICES[-1][0])
   subtitle = models.CharField(max_length=100)
   title = models.CharField(max_length=100)
 
@@ -81,4 +81,4 @@ class Song(models.Model):
   download_url = models.CharField(max_length=255)
 
   # .mp3 for the song preview
-  preview_url = models.CharField(max_length=255)
+  preview_url = models.CharField(max_length=255, null=True)

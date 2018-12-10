@@ -2,6 +2,7 @@
 *.log
 *.pyc
 
+.vscode/
 __pycache__/
 build/
 dist/

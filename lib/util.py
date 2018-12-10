@@ -1,4 +1,6 @@
 import os.path
+import random
+import uuid
 
 
 def first(iterable, func):
@@ -12,6 +14,7 @@ def first(iterable, func):
 
   return (None, -1)
 
+
 def rename_file(file, new_name):
   """ Returns the new name for a file while keeping all of extensions intact.
 
@@ -24,3 +27,17 @@ def rename_file(file, new_name):
     new_name = "%s.%s" % (new_name, parts[1])
 
   return new_name
+
+
+hex_chars = "0123456789abcdef"
+
+def random_hex_string(length):
+  """ Returns a pseudo-random hex string of a given length. The first 32 bytes
+  are gauranteed to be unique
+  """
+  s = uuid.uuid4().hex[:length]
+
+  for _ in range(length - 32):
+    s += random.choice(hex_chars)
+
+  return s
