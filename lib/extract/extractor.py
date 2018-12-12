@@ -7,7 +7,7 @@ from django.conf import settings
 
 from lib import util
 from lib.step_parser.sm import SMParser
-from lib.upload import copy_public_file
+from lib.upload import copy_public_file, copy_public_file_from_string
 from song.models import Chart, Song
 
 
@@ -74,7 +74,7 @@ class SongExtractor:
 
     # Extract and parse the step files. It's important that we parse all of the step
     # files first in case we encounter an error, otherwise we'd need to backtrack
-    for sf in parsed_zip.step_files:
+    for sf in self.parsed_zip.step_files:
       self.extracted_songs.append(self._read_song(sf))
 
     self._copy_zip_to_public_folder()
@@ -96,14 +96,14 @@ class SongExtractor:
       return None
 
     # Extracted audio file
-    ex_path = "%s_%s" % (util.random_hex_string(16), step_parser.song.file_name)
-    ex_file = self.parsed_zip.extract(audio_file, ex_path)
+    ex_path = self.parsed_zip.zf.extract(audio_file,
+      "%s_%s" % (util.random_hex_string(16), step_parser.song.file_name))
 
     preview_path = "%s_preview.mp3" % ex_path
 
     try:
       # Try to create the preview using ffmpeg
-      subprocess.run("%s -ss %f -t %f -i %s -ab %s -ac 2 %s -y" % (
+      subprocess.run("%s -ss %f -t %f -i %s -ab %s -ac 2 %s -y -v error" % (
         settings.FFMPEG_PATH,
         step_parser.song.preview_start,
         min(step_parser.song.preview_length, settings.PREVIEW_MAX_LENGTH),
@@ -192,7 +192,7 @@ class SongExtractor:
 
     # Copy the banner
     if banner_dst:
-      with self.parsed_zip.open(song.banner_file) as f:
+      with self.parsed_zip.zf.open(song.banner_file) as f:
         copy_public_file_from_string(f.read(), os.path.join(self.dst_folder, banner_dst))
 
     # Copy the preview

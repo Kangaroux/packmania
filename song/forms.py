@@ -3,6 +3,7 @@ import logging
 from django import forms
 from django.conf import settings
 
+from lib.extract import ExtractError, SongExtractor
 from lib.zip_parser import BaseZipError, ZipParser
 
 
@@ -15,9 +16,12 @@ class UploadForm(forms.Form):
   })
 
   def __init__(self, *args, **kwargs):
+    self.user = kwargs.pop("user")
+
     super().__init__(*args, **kwargs)
 
-    zip_parser = None
+    self.songs = None
+    self.zip_parser = None
 
   def clean_file(self):
     """ Inspects the zip file to see if it's valid """
@@ -29,7 +33,8 @@ class UploadForm(forms.Form):
       try:
         with self.zip_parser:
           self.zip_parser.inspect(settings.MAX_UNCOMPRESSED_ZIP_SIZE, settings.DISALLOWED_FILE_TYPES)
-      except BaseZipError as e:
+          self.songs = SongExtractor(self.zip_parser, self.user).extract_all()
+      except (BaseZipError, ExtractError) as e:
         raise forms.ValidationError(e)
       except Exception as e:
         logger.exception("Error when trying to inspect zip file")
