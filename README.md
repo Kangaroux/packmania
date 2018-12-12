@@ -1,4 +1,6 @@
-View the project tracker on Trello: https://trello.com/b/55ohMBov/packmania
+⭐ [**View the project tracker on Trello**](https://trello.com/b/55ohMBov/packmania) ⭐
+
+[![Build Status](https://travis-ci.org/Kangaroux/packmania.svg?branch=master)](https://travis-ci.org/Kangaroux/packmania)
 
 # Packmania
 Packmania is a community-driven site for sharing and downloading songs and packs for Stepmania.
