@@ -80,5 +80,8 @@ MEDIA_URL = "/uploads/"
 
 TEST_DATA_DIR = os.path.join(BASE_DIR, "tests", "test_data")
 TMP_DIR = os.path.join(BASE_DIR, "tmp", "packmania")
+THIRD_PARTY_DIR = os.path.join(BASE_DIR, "thirdparty")
+
+FFMPEG_PATH = os.path.join(THIRD_PARTY_DIR, "ffmpeg4.1")
 
 from .app_settings import *

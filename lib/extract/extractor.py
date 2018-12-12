@@ -1,10 +1,9 @@
-import io
 import logging
-import os
 import os.path
+import subprocess
+import tempfile
 
 from django.conf import settings
-from django.core.files.base import File
 
 from lib import util
 from lib.step_parser.sm import SMParser
@@ -18,9 +17,9 @@ logger = logging.getLogger(__name__)
 class ExtractedSong:
   """ Represents a song that has been "extracted" from the zip and parsed """
 
-  def __init__(self, song_data, audio_file, banner_file):
+  def __init__(self, song_data, preview_file_path, banner_file):
     self.song_data = song_data
-    self.audio_file = audio_file
+    self.preview_file_path = preview_file_path
     self.banner_file = banner_file
 
     # The names that the files will have once uploaded to the public server
@@ -28,12 +27,14 @@ class ExtractedSong:
     self.banner_dst = None
 
   def get_preview_dst(self):
-    """ Returns the public name of the audio preview """
+    """ Returns the public name of the audio preview (or None if there was an error
+    creating the preview)
+    """
+    if not self.preview_file_path:
+      return None
+
     if not self.preview_dst:
-      self.preview_dst = "preview_%s.%s" % (
-        util.random_hex_string(8),
-        os.path.basename(self.audio_file.filename).split(".", 1)[1]
-      )
+      self.preview_dst = "preview_%s.mp3" % util.random_hex_string(8)
 
     return self.preview_dst
 
@@ -86,6 +87,39 @@ class SongExtractor:
 
     return songs
 
+  def _create_audio_preview(self, step_parser, audio_file):
+    """ Extracts the audio file and trims it using ffmpeg to produce a trimmed
+    mp3 file. If the preview was created successfully, returns the file path,
+    otherwise None
+    """
+    if not audio_file:
+      return None
+
+    # Extracted audio file
+    ex_path = "%s_%s" % (util.random_hex_string(16), step_parser.song.file_name)
+    ex_file = self.parsed_zip.extract(audio_file, ex_path)
+
+    preview_path = "%s_preview.mp3" % ex_path
+
+    try:
+      # Try to create the preview using ffmpeg
+      subprocess.run("%s -ss %f -t %f -i %s -ab %s -ac 2 %s -y" % (
+        settings.FFMPEG_PATH,
+        step_parser.song.preview_start,
+        min(step_parser.song.preview_length, settings.PREVIEW_MAX_LENGTH),
+        ex_path,
+        settings.PREVIEW_BITRATE,
+        preview_path
+      ), shell=True)
+    except subprocess.CalledProcessError:
+      logger.warning("ffmpeg returned non-zero status for '%s'" % step_parser.song.file_name)
+      return None
+
+    # Remove the extracted file
+    os.remove(ex_path)
+
+    return preview_path
+
   def _get_file_from_zip(self, path):
     """ Returns a file in the zip or None if it doesn't exist """
     try:
@@ -95,43 +129,44 @@ class SongExtractor:
 
   def _read_song(self, step_file):
     """ Reads the given step file and returns an ExtractedSong object """
-    parser = SMParser()
+    step_parser = SMParser()
     step_file_name = os.path.basename(step_file.filename)
 
     try:
       # Load the step file into memory and parse it
       with self.parsed_zip.zf.open(step_file) as f:
-        parser.load_from_string(f.read())
+        step_parser.load_from_string(f.read())
     except Exception as e:
       logger.exception("Error while parsing step file")
       raise StepFileParseError("The step file '%s' could not be parsed, it may be corrupted "
         "or an unsupported format." % step_file_name)
 
     # Step file does not define an audio file
-    if not parser.song.file_name:
+    if not step_parser.song.file_name:
       raise MissingAudioFileError("The song '%s' does not have an audio file." % step_file_name)
 
     dir_name = os.path.dirname(step_file.filename)
-    audio_file = self._get_file_from_zip(os.path.join(dir_name, parser.song.file_name))
+    audio_file = self._get_file_from_zip(os.path.join(dir_name, step_parser.song.file_name))
 
     # Audio file doesn't exist
     if not audio_file:
       raise MissingAudioFileError("The audio file '%s' for song '%s' does not exist." % (
-        parser.song.file_name,
+        step_parser.song.file_name,
         step_file_name)
       )
 
+    preview_file_path = self._create_audio_preview(step_parser, audio_file)
     banner_file = None
 
     # Get the banner if it exists
-    if parser.display.banner:
-      banner_file = self._get_file_from_zip(os.path.join(dir_name, parser.display.banner))
+    if step_parser.display.banner:
+      banner_file = self._get_file_from_zip(os.path.join(dir_name, step_parser.display.banner))
 
       # Doesn't exist, ignore
       if not banner_file:
         logger.warning("Banner '%s' does not exist, ignoring..." % banner_file)
 
-    return ExtractedSong(parser, audio_file, banner_file)
+    return ExtractedSong(step_parser, preview_file_path, banner_file)
 
   def _copy_zip_to_public_folder(self):
     """ Copies the zip file to the public folder """
