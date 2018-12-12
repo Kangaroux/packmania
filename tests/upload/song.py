@@ -1,6 +1,7 @@
 import json
 import os
 import unittest
+import unittest.mock
 
 from django.conf import settings
 from django.shortcuts import reverse
@@ -23,7 +24,11 @@ class TestUploadSong(TestCase):
 
     self.assertEqual(resp.status_code, 401)
 
-  def test_upload_ok(self):
+  # Patch out some expensive and unnecessary operations
+  @unittest.mock.patch("subprocess.run")
+  @unittest.mock.patch("lib.extract.extractor.SongExtractor._copy_zip_to_public_folder")
+  @unittest.mock.patch("lib.extract.extractor.SongExtractor._copy_song_to_public_folder")
+  def test_upload_ok(self, *args):
     self.client.force_login(self.u)
 
     with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:

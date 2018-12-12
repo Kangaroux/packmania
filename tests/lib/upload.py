@@ -33,9 +33,13 @@ class TestSongUpload(TestCase):
     with open(dst, "rb") as f:
       self.assertEqual(f.read(), b"hello1234")
 
+    os.remove(dst)
+
   def test_copy_public_file_from_string(self):
     dst = os.path.join(settings.MEDIA_ROOT, "test_copy_public_file_from_string.foo")
     copy_public_file_from_string(b"testing 123", "test_copy_public_file_from_string.foo")
 
     with open(dst, "rb") as f:
       self.assertEqual(f.read(), b"testing 123")
+
+    os.remove(dst)
