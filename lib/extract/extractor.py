@@ -183,9 +183,25 @@ class SongExtractor:
     else:
       zip_name = "upload.zip"
 
+    copy_public_file(self.parsed_zip.file, os.path.join(self.dst_folder, zip_name))
+
   def _copy_song_to_public_folder(self, song):
     """ Copies the audio preview and banner to a public folder """
-    # TODO
+    banner_dst = song.get_banner_dst()
+    preview_dst = song.get_preview_dst()
+
+    # Copy the banner
+    if banner_dst:
+      with self.parsed_zip.open(song.banner_file) as f:
+        copy_public_file_from_string(f.read(), os.path.join(self.dst_folder, banner_dst))
+
+    # Copy the preview
+    if preview_dst:
+      with open(song.preview_file_path, "rb") as f:
+        copy_public_file_from_string(f.read(), os.path.join(self.dst_folder, preview_dst))
+
+      # We no longer need a local copy of the preview
+      os.remove(song.preview_file_path)
 
   def _add_song_to_db(self, song):
     """ Adds the song to the database and returns it """
