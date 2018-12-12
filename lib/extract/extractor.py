@@ -95,11 +95,14 @@ class SongExtractor:
     if not audio_file:
       return None
 
-    # Extracted audio file
-    ex_path = self.parsed_zip.zf.extract(audio_file,
-      "%s_%s" % (util.random_hex_string(16), step_parser.song.file_name))
+    # Extracted audio file path
+    ex_path = os.path.join(settings.TMP_DIR, "%s_%s" % (util.random_hex_string(16), step_parser.song.file_name))
 
-    preview_path = "%s_preview.mp3" % ex_path
+    # Extract the file
+    with open(ex_path, "wb") as ex:
+      ex.write(self.parsed_zip.zf.read(audio_file))
+
+    preview_path = os.path.join(settings.TMP_DIR, "%s_preview.mp3" % ex_path)
 
     try:
       # Try to create the preview using ffmpeg

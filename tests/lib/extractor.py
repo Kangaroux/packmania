@@ -1,4 +1,5 @@
 import os.path
+import shutil
 import unittest
 
 from django.conf import settings
@@ -43,15 +44,19 @@ class TestExtractor(TestCase):
     self.assertTrue(song.download_url.startswith(settings.MEDIA_ROOT))
     # self.assertTrue(song.preview_url.startswith(settings.MEDIA_ROOT))
 
-  def test_extract_and_add_songs(self):
+  def test_song_extraction(self):
     with open(os.path.join(settings.TEST_DATA_DIR, "abxy.zip"), "rb") as f:
       parsed_zip = ZipParser(f)
 
       with parsed_zip:
         parsed_zip.inspect()
-        song = SongExtractor(parsed_zip, self.u).extract_all()
+        extractor = SongExtractor(parsed_zip, self.u)
+        song = extractor.extract_all()
 
     self.assertEqual(len(song), 1)
     self.assertEqual(song[0].uploader, self.u)
     self.assertEqual(song[0].title, "ABXY")
     self.assertEqual(song[0].charts.count(), 4)
+
+    # Cleanup dst folder
+    shutil.rmtree(os.path.join(settings.MEDIA_ROOT, extractor.dst_folder))
