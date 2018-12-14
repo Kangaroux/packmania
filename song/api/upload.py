@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from .song import SongListAPI
 from ..forms import UploadForm
 from lib.api import APIView
-from lib.upload import extract_and_add_songs
+from lib.extract import ExtractError, SongExtractor
 
 
 class UploadAPI(APIView):
@@ -17,12 +17,9 @@ class UploadAPI(APIView):
     if not request.user.is_authenticated:
       return self.not_logged_in()
 
-    form = UploadForm(request.POST, request.FILES)
+    form = UploadForm(request.POST, request.FILES, user=request.user)
 
     if not form.is_valid():
       return self.form_error(form)
 
-    with form.zip_parser:
-      songs = extract_and_add_songs(request.user, form.zip_parser)
-
-    return self.ok(SongListAPI.serialize_songs(songs))
+    return self.ok(SongListAPI.serialize_songs(form.songs))

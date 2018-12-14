@@ -8,3 +8,7 @@ TEXT_MAX_UNCOMPRESSED_ZIP_SIZE = "5GB"
 
 # File extensions not allowed in user uploaded zips
 DISALLOWED_FILE_TYPES = (".exe", ".zip")
+
+# 128kbps mp3
+PREVIEW_BITRATE = "128k"
+PREVIEW_MAX_LENGTH = 30.0

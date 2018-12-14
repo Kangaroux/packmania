@@ -41,6 +41,18 @@ class ChartInfo:
     # DANCE_THREEPANEL = "dance-threepanel"
     # DANCE_ROUTINE = "dance-routine"
 
+    @classmethod
+    def convert(cls, name):
+      name = name.lower()
+      type_map = {
+        "dance-single": cls.DANCE_SINGLE,
+        "dance-solo": cls.DANCE_SINGLE,
+        "dance-double": cls.DANCE_DOUBLE,
+        "dance-couple": cls.DANCE_DOUBLE
+      }
+
+      return type_map.get(name)
+
   class Difficulty(Enum):
     NOVICE = "Novice"
     EASY = "Easy"

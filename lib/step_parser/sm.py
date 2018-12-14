@@ -129,7 +129,7 @@ class SMParser:
         bpm = value.split(":")
 
         if len(bpm) == 1:
-          bpm = float(bpm)
+          bpm = float(bpm[0])
           self.song.bpm_range = (bpm, bpm)
         elif len(bpm) == 2:
           self.song.bpm_range = (float(bpm[0]), float(bpm[1]))
@@ -151,18 +151,16 @@ class SMParser:
     for i in range(len(note_data) - 1):
       note_data[i] = note_data[i].strip()
 
-    try:
-      chart.type = ChartInfo.Type(note_data[0])
-    except ValueError:
-      print("Unsupported chart type '%s', skipping..." % note_data[0])
-      return
-
+    chart.type = ChartInfo.Type.convert(note_data[0])
     chart.difficulty = ChartInfo.Difficulty.convert(note_data[2])
     chart.meter = int(note_data[3])
 
-    # TODO: Handle parsing charts for doubles
+    # TODO: Handle other chart types
     if chart.type == ChartInfo.Type.DANCE_SINGLE:
       self.parse_notes(chart, note_data[5])
+    else:
+      print("Unsupported chart type '%s' (%s), skipping..." % (note_data[0], chart.type))
+      return
 
     self.charts.append(chart)
 
