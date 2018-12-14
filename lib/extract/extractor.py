@@ -5,6 +5,7 @@ import tempfile
 
 from django.conf import settings
 
+from .exceptions import MissingAudioFileError, StepFileParseError
 from lib import util
 from lib.step_parser.sm import SMParser
 from lib.upload import copy_public_file, copy_public_file_from_string
@@ -46,7 +47,7 @@ class ExtractedSong:
     if not self.banner_dst:
       self.banner_dst = "banner_%s.%s" % (
         util.random_hex_string(8),
-        os.path.basename(self.banner_file.filename).split(".", 1)[1]
+        os.path.basename(self.banner_file.filename).rsplit(".", 1)[1]
       )
 
     return self.banner_dst
@@ -64,6 +65,7 @@ class SongExtractor:
 
     # The destination folder for the song(s)
     self.dst_folder = util.random_hex_string(16)
+    self.zip_name = ""
 
   def extract_all(self):
     """ Extracts all of the songs from the zip, uploads the zip and song assets to
@@ -106,7 +108,7 @@ class SongExtractor:
 
     try:
       # Try to create the preview using ffmpeg
-      subprocess.run("%s -ss %f -t %f -i %s -ab %s -ac 2 %s -y -v error" % (
+      subprocess.run("%s -ss %f -t %f -i '%s' -ab %s -ac 2 '%s' -y -v error" % (
         settings.FFMPEG_PATH,
         step_parser.song.preview_start,
         min(step_parser.song.preview_length, settings.PREVIEW_MAX_LENGTH),
@@ -153,6 +155,8 @@ class SongExtractor:
 
     # Audio file doesn't exist
     if not audio_file:
+      print(os.path.join(dir_name, step_parser.song.file_name))
+      print(self.parsed_zip.zf.namelist())
       raise MissingAudioFileError("The audio file '%s' for song '%s' does not exist." % (
         step_parser.song.file_name,
         step_file_name)
@@ -167,26 +171,24 @@ class SongExtractor:
 
       # Doesn't exist, ignore
       if not banner_file:
-        logger.warning("Banner '%s' does not exist, ignoring..." % banner_file)
+        logger.warning("Banner '%s' does not exist, ignoring..." % step_parser.display.banner)
 
     return ExtractedSong(step_parser, preview_file_path, banner_file)
 
   def _copy_zip_to_public_folder(self):
     """ Copies the zip file to the public folder """
-    zip_name = ""
-
     # If this is a single song then make the zip "artist - title.zip"
     if len(self.extracted_songs) == 1:
-      zip_name = "%s - %s.zip" % (
+      self.zip_name = "%s - %s.zip" % (
         self.extracted_songs[0].song_data.display.artist,
         self.extracted_songs[0].song_data.display.title
       )
     elif self.parsed_zip.pack_name:
-      zip_name = "%s.zip" % self.parsed_zip.pack_name
+      self.zip_name = "%s.zip" % self.parsed_zip.pack_name
     else:
-      zip_name = "upload.zip"
+      self.zip_name = "upload.zip"
 
-    copy_public_file(self.parsed_zip.file, os.path.join(self.dst_folder, zip_name))
+    copy_public_file(self.parsed_zip.file, os.path.join(self.dst_folder, self.zip_name))
 
   def _copy_song_to_public_folder(self, song):
     """ Copies the audio preview and banner to a public folder """
@@ -227,7 +229,8 @@ class SongExtractor:
 
       # download_url=zip_path,
       preview_url=song.get_preview_dst(),
-      banner_url=song.get_banner_dst()
+      banner_url=song.get_banner_dst(),
+      download_url=self.zip_name
     )
 
     # Bulk insert the charts for the song
